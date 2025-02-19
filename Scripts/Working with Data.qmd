@@ -42,3 +42,20 @@ install.packages("knitr")
 ```{r dplyr}
 install.packages("dplyr")
 ```
+
+```{r library}
+library(tidyverse)
+library(descr)
+library(knitr)
+library(dplyr)
+library(readr)
+library(readxl)
+```
+
+```{r load-data}
+file_path <- "/cloud/project/Data/Original Data/data.xls"
+
+data.xls <- read_excel(file_path)
+
+head(data.xls)
+```
