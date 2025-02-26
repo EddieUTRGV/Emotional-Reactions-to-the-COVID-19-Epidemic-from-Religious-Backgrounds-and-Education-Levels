@@ -59,3 +59,14 @@ data.xls <- read_excel(file_path)
 
 head(data.xls)
 ```
+
+```{r}
+freq(as.ordered(data.xls$A3.8), plot = FALSE)
+#label(data.xls$A3.8)<- "A3.8"
+```
+
+\^Table Explanation
+
+```{r}
+
+```
