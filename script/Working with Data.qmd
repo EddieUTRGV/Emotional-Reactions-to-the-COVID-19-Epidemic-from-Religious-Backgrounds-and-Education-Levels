@@ -53,7 +53,7 @@ library(readxl)
 ```
 
 ```{r load-data}
-file_path <- "/cloud/project/Data/Original Data/data.xls"
+file_path <- "/cloud/project/data/Original Data/data.xls"
 
 data.xls <- read_excel(file_path)
 
