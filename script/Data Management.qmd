@@ -1,10 +1,12 @@
 ---
-title: "Working with Data"
+title: "Data Management"
 format: 
   pdf: 
-    number-sections: true
-    toc: true
+    number-sections: true 
+    toc: true            
     pdf-engine: xelatex
+    geometry: margin=1in
+    fontsize: 11pt
 editor: visual
 ---
 
@@ -21,7 +23,7 @@ library(readxl)
 file_path <- "/cloud/project/data/data.xls"
 
 data.xls <- read_excel(file_path)
-
+options(width=80)
 head(data.xls)
 ```
 
