@@ -1,8 +1,6 @@
 ---
 title: "Working with Data"
 format: 
-  html:
-    self-contained: true
   pdf: 
     number-sections: true
     toc: true
