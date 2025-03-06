@@ -5,7 +5,7 @@ format:
     self-contained: true
   pdf: 
     number-sections: true
-    toc:
+    toc: true
     pdf-engine: xelatex
 editor: visual
 ---
