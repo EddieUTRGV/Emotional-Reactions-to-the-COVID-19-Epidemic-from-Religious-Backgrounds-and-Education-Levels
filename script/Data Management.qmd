@@ -28,9 +28,10 @@ head(data.xls)
 ```
 
 ```{r religious orientations}
-#This frequency table shows the many different religious orientations that a sample included. What this is showing me is how many people are a part of a Catholic, Protestant or any other religious orientations. This will be important as I need to gather a variable in which excludes those who are not religious. 
 freq(as.ordered(data.xls$A3.8), plot = FALSE)
 ```
+
+This frequency table shows the many different religious orientations that a sample included. What this is showing me is how many people are a part of a Catholic, Protestant or any other religious orientations. This will be important as I need to gather a variable in which excludes those who are not religious.
 
 ```{r education levels}
 #This frequency table shows the levels of education within a sample. It shows me how many people don't have a high school degree to how many people have a doctorates. This will help me relate the info to people who are religious,to their levels of education. I need this info because I will eventually compare the information I gather to how many took COVID-19 as a serious threat.
