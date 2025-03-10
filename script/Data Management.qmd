@@ -34,45 +34,52 @@ freq(as.ordered(data.xls$A3.8), plot = FALSE)
 This frequency table shows the many different religious orientations that a sample included. What this is showing me is how many people are a part of a Catholic, Protestant or any other religious orientations. This will be important as I need to gather a variable in which excludes those who are not religious.
 
 ```{r education levels}
-#This frequency table shows the levels of education within a sample. It shows me how many people don't have a high school degree to how many people have a doctorates. This will help me relate the info to people who are religious,to their levels of education. I need this info because I will eventually compare the information I gather to how many took COVID-19 as a serious threat.
 freq(as.ordered(data.xls$A3.10), plot = FALSE)
 
 ```
 
+This frequency table shows the levels of education within a sample. It shows me how many people don't have a high school degree to how many people have a doctorates. This will help me relate the info to people who are religious,to their levels of education. I need this info because I will eventually compare the information I gather to how many took COVID-19 as a serious threat.
+
 ```{r COVID-19 exaggerated}
-#This frequency table shows the levels in which how many people thought COVID-19 was being exaggerated. It goes from level 1 = Not at all to level 10= Extremely. This will help me see how seriously people took COVID-19 and who underestimated it.
 freq(as.ordered(data.xls$`A5.3*`), plot = FALSE)
 
 ```
 
+This frequency table shows the levels in which how many people thought COVID-19 was being exaggerated. It goes from level 1 = Not at all to level 10= Extremely. This will help me see how seriously people took COVID-19 and who underestimated it.
+
 ```{r mask frequency}
-#This frequency table shows how many people had frequently put on a mask during COVID-19. It goes from level 1, Never, to level 7, Always. This'll help aid my question on who was taking COVID-19 seriosly.
 freq(as.ordered(data.xls$A31.4), plot = FALSE)
 
 ```
 
+This frequency table shows how many people had frequently put on a mask during COVID-19. It goes from level 1, Never, to level 7, Always. This'll help aid my question on who was taking COVID-19 seriosly.
+
 ```{r distance away frequency}
-#This table shows the frequency in which a person kept a distance of 1.5 meters away from others. The chart goes from level 1, Never, to level 7, Always. This will help me see who didn't wear their masks during COVID-19, which relates to my question of who didn't follow the guidelines provided to everyone across the globe.
 freq(as.ordered(data.xls$A31.6), plot = FALSE)
 
 ```
 
+This table shows the frequency in which a person kept a distance of 1.5 meters away from others. The chart goes from level 1, Never, to level 7, Always. This will help me see who didn't wear their masks during COVID-19, which relates to my question of who didn't follow the guidelines provided to everyone across the globe.
+
 ```{r high school and below}
-#I am creating a variable named HS_NBELOW to help me see who have educations from High School and below.
 data.xls$HS_NBELOW <- factor(ifelse(data.xls$A3.10 %in% c("1", "2"), "Yes", "No"))
 
 summary(data.xls$HS_NBELOW)
 ```
 
+I am creating a variable named HS_NBELOW to help me see who have educations from High School and below.
+
 ```{r colleg and above}
-#I am creating a variable named SOME_CLGNABOVE to help me see who has had some college education all the way to a doctoral degree.
 data.xls$SOME_CLGNABOVE <- factor(ifelse(data.xls$A3.10 %in% c("3", "4", "5", "6", "7", "8"), "Yes", "No"))
 
 summary(data.xls$SOME_CLGNABOVE)
 ```
 
+I am creating a variable named SOME_CLGNABOVE to help me see who has had some college education all the way to a doctoral degree.
+
 ```{r only religious}
-#I am creating a variable named ONLY_R to only include those of religious orientation.
 data.xls$ONLY_R <- factor(ifelse(data.xls$A3.8 %in% c("1", "2","3","4","5","6","7","8","9","11"), "Yes", "No"))
 summary(data.xls$ONLY_R)
 ```
+
+I am creating a variable named ONLY_R to only include those of religious orientation.
