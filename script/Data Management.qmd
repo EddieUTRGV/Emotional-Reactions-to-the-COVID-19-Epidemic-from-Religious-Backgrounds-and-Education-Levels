@@ -19,6 +19,8 @@ library(readr)
 library(readxl)
 ```
 
+#===My Data===
+
 ```{r load-data}
 file_path <- "/cloud/project/data/data.xls"
 
@@ -27,11 +29,15 @@ options(width=80)
 head(data.xls)
 ```
 
+===Frequency of Different Religious Orientations===
+
 ```{r religious orientations}
 freq(as.ordered(data.xls$A3.8), plot = FALSE)
 ```
 
 This frequency table shows the many different religious orientations that a sample included. What this is showing me is how many people are a part of a Catholic, Protestant or any other religious orientations. This will be important as I need to gather a variable in which excludes those who are not religious.
+
+===Frequency of Levels of Educations===
 
 ```{r education levels}
 freq(as.ordered(data.xls$A3.10), plot = FALSE)
@@ -40,6 +46,8 @@ freq(as.ordered(data.xls$A3.10), plot = FALSE)
 
 This frequency table shows the levels of education within a sample. It shows me how many people don't have a high school degree to how many people have a doctorates. This will help me relate the info to people who are religious,to their levels of education. I need this info because I will eventually compare the information I gather to how many took COVID-19 as a serious threat.
 
+===Frequency of who believed COVID-19 was exaggerated===
+
 ```{r COVID-19 exaggerated}
 freq(as.ordered(data.xls$`A5.3*`), plot = FALSE)
 
@@ -47,12 +55,16 @@ freq(as.ordered(data.xls$`A5.3*`), plot = FALSE)
 
 This frequency table shows the levels in which how many people thought COVID-19 was being exaggerated. It goes from level 1 = Not at all to level 10= Extremely. This will help me see how seriously people took COVID-19 and who underestimated it.
 
+===Frequency in which mask was worn===
+
 ```{r mask frequency}
 freq(as.ordered(data.xls$A31.4), plot = FALSE)
 
 ```
 
-This frequency table shows how many people had frequently put on a mask during COVID-19. It goes from level 1, Never, to level 7, Always. This'll help aid my question on who was taking COVID-19 seriosly.
+This frequency table shows how many people had frequently put on a mask during COVID-19. It goes from level 1, Never, to level 7, Always. This will help aid my question on who was taking COVID-19 seriously.
+
+===Distance Away Frequency===
 
 ```{r distance away frequency}
 freq(as.ordered(data.xls$A31.6), plot = FALSE)
@@ -61,25 +73,82 @@ freq(as.ordered(data.xls$A31.6), plot = FALSE)
 
 This table shows the frequency in which a person kept a distance of 1.5 meters away from others. The chart goes from level 1, Never, to level 7, Always. This will help me see who didn't wear their masks during COVID-19, which relates to my question of who didn't follow the guidelines provided to everyone across the globe.
 
-```{r high school and below}
-data.xls$HS_NBELOW <- factor(ifelse(data.xls$A3.10 %in% c("1", "2"), "Yes", "No"))
+=== Variable for Levels of Education===
 
-summary(data.xls$HS_NBELOW)
+```{r Education Level}
+data.xls$LVL_EDU <- factor(ifelse(data.xls$A3.10 %in% c("1","2"), "High School and Below", "College and Above"))
+
+summary(data.xls$LVL_EDU)
 ```
 
-I am creating a variable named HS_NBELOW to help me see who have educations from High School and below.
+I am creating a variable named LVL_EDU to help me see who have educations from up to High School then College and higher.
 
-```{r colleg and above}
-data.xls$SOME_CLGNABOVE <- factor(ifelse(data.xls$A3.10 %in% c("3", "4", "5", "6", "7", "8"), "Yes", "No"))
-
-summary(data.xls$SOME_CLGNABOVE)
-```
-
-I am creating a variable named SOME_CLGNABOVE to help me see who has had some college education all the way to a doctoral degree.
+===Variable for People of Only Religious Orientations===
 
 ```{r only religious}
-data.xls$ONLY_R <- factor(ifelse(data.xls$A3.8 %in% c("1", "2","3","4","5","6","7","8","9","11"), "Yes", "No"))
+data.xls$ONLY_R <- factor(ifelse(data.xls$A3.8 %in% c("1", "2","3","4","5","6","7","8","9","11"), "Has a Religious Belief", "No Beliefs"))
+
 summary(data.xls$ONLY_R)
 ```
 
-I am creating a variable named ONLY_R to only include those of religious orientation.
+I am creating a variable named ONLY_R to group up who and who don't have a religious orientation.
+
+===Variable for People Who Think COVID-19 was over exaggerated===
+
+```{r}
+data.xls$CVD_EXAG <- factor(ifelse(data.xls$`A5.3*` %in% c("1", "2","3","4","5"), "Reasonable Concern", "Out-of-Proportion"))
+
+summary(data.xls$CVD_EXAG)
+```
+
+I am creating the variable CVD_EXAG to summarize the responses 1 = Not at all, 10= Extremely into two managed variables, options 1-5 being considered the people who believed that COVID-19 was not being over-exaggerated and options 6-10 being considered the people who thought the virus was being told to be a larger issue than it really was.
+
+===Univariate Graphs===
+
+```{r}
+library(ggplot2)
+
+
+ggplot(data.xls, aes(x = ONLY_R)) + geom_bar()
+
+
+data.xls %>%
+  ggplot(aes(x = ONLY_R)) +
+  geom_bar(fill = "forestgreen", color = "black") + 
+  ggtitle("People Who Are of Religion") +
+  xlab("Responses of Spiritual Belief") +
+  ylab("Count of People") +
+  theme_minimal() 
+
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(data.xls, aes(x = LVL_EDU)) + geom_bar()
+
+data.xls %>%
+  ggplot(aes(x = LVL_EDU)) +
+  geom_bar(fill = "darkred", color = "black") + 
+  ggtitle("Levels of Education Within the Sample") +
+  xlab("Different Levels of Education") +
+  ylab("Count of People") +
+  theme_minimal() 
+
+```
+
+```{r}
+library(ggplot2)
+
+
+ggplot(data.xls, aes(x = CVD_EXAG)) + geom_bar()
+
+
+data.xls %>%
+  ggplot(aes(x = CVD_EXAG)) +
+  geom_bar(fill = "forestgreen", color = "black") + 
+  ggtitle("People Who Believed COVID-19 was Exagerated") +
+  xlab("Opinions on COVID-19") +
+  ylab("Count of People") +
+  theme_minimal() 
+```
