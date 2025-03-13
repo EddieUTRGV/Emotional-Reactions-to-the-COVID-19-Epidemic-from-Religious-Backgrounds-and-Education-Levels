@@ -108,10 +108,6 @@ I am creating the variable CVD_EXAG to summarize the responses 1 = Not at all, 1
 ```{r}
 library(ggplot2)
 
-
-ggplot(data.xls, aes(x = ONLY_R)) + geom_bar()
-
-
 data.xls %>%
   ggplot(aes(x = ONLY_R)) +
   geom_bar(fill = "forestgreen", color = "black") + 
@@ -122,10 +118,10 @@ data.xls %>%
 
 ```
 
+I am developing this graph to show how many people in the sample do and do not have any religious perspectives. I would like to correlate this graph later on with my other variables to see if there are any patterns between each other. One of my main concerns is that some people of religious backgrounds didn't think COVID-19 was a problem and that nothing would happen to each other. With this data gathered and graphed, I think it'll become easier to start comparing.
+
 ```{r}
 library(ggplot2)
-
-ggplot(data.xls, aes(x = LVL_EDU)) + geom_bar()
 
 data.xls %>%
   ggplot(aes(x = LVL_EDU)) +
@@ -137,12 +133,10 @@ data.xls %>%
 
 ```
 
+This graph will help to visualize the differences between two major levels of education. The goal of this is to understand whether or not the levels education dictate what people believed during the COVID-19 pandemic and how serious the virus was. My graph here is just to show how many in the sample have received higher education or not.
+
 ```{r}
 library(ggplot2)
-
-
-ggplot(data.xls, aes(x = CVD_EXAG)) + geom_bar()
-
 
 data.xls %>%
   ggplot(aes(x = CVD_EXAG)) +
@@ -152,3 +146,5 @@ data.xls %>%
   ylab("Count of People") +
   theme_minimal() 
 ```
+
+This graph shows the many people who believed whether COVID-19 was overtly told as a massive issue and the many others who believed the concern of the virus was authentic. The main goal for this chart is to get an idea of the opinions many had about the virus when the issue was most prevalent.
