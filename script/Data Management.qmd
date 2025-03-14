@@ -19,7 +19,7 @@ library(readr)
 library(readxl)
 ```
 
-#===My Data===
+===My Data===
 
 ```{r load-data}
 file_path <- "/cloud/project/data/data.xls"
@@ -29,13 +29,18 @@ options(width=80)
 head(data.xls)
 ```
 
-===Frequency of Different Religious Orientations===
+===Frequencys===
 
-```{r religious orientations}
+```{r}
 freq(as.ordered(data.xls$A3.8), plot = FALSE)
 ```
 
-This frequency table shows the many different religious orientations that a sample included. What this is showing me is how many people are a part of a Catholic, Protestant or any other religious orientations. This will be important as I need to gather a variable in which excludes those who are not religious.
+===Frequency of Religious Orientations===
+
+```{r}
+freq(as.ordered(data.xls$A3.8), plot = FALSE)
+
+```
 
 ===Frequency of Levels of Educations===
 
@@ -148,3 +153,35 @@ data.xls %>%
 ```
 
 This graph shows the many people who believed whether COVID-19 was overtly told as a massive issue and the many others who believed the concern of the virus was authentic. The main goal for this chart is to get an idea of the opinions many had about the virus when the issue was most prevalent.
+
+===Bivariate Graph===
+
+```{r}
+ggplot(data=data.xls, aes(x = factor(ONLY_R, labels = c("Not Religious", "Religious")), fill = factor(CVD_EXAG, labels = c("Exaggerated", "Not Exaggerated")))) +
+    geom_bar(position = "dodge") +
+    geom_text(stat='count', aes(label=..count..), position=position_dodge(0.9), vjust=-0.5) +
+    labs(title = "Does Religion Impact the Perceptions of COVID-19",
+         x = "Religious Beliefs",
+         y = "Count of People",
+         fill = "COVID-19 View") +
+    theme_minimal() +
+    scale_fill_brewer(palette = "Set1") +
+    theme(panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.border = element_rect(color = "black", fill = NA, size = 1))
+```
+
+```{r}
+ggplot(data=data.xls, aes(x = factor(LVL_EDU, labels = c("College and Higher", "High School and Lower")), fill = factor(CVD_EXAG, labels = c("Exaggerated", "Not Exaggerated")))) +
+    geom_bar(position = "dodge") +
+    geom_text(stat='count', aes(label=..count..), position=position_dodge(0.9), vjust=-0.5) +
+    labs(title = "Does Education Impact How COVID-19 was perceived?",
+         x = "Levels of Education",
+         y = "Count",
+         fill = "COVID-19 View") +
+    theme_minimal() +
+    scale_fill_brewer(palette = "Set1") +
+    theme(panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.border = element_rect(color = "black", fill = NA, size = 1))
+```
