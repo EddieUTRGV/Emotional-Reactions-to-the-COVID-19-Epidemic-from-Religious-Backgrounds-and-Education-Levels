@@ -154,7 +154,9 @@ data.xls %>%
 
 This graph shows the many people who believed whether COVID-19 was overtly told as a massive issue and the many others who believed the concern of the virus was authentic. The main goal for this chart is to get an idea of the opinions many had about the virus when the issue was most prevalent.
 
-===Bivariate Graph===
+====Bivariate Graph====
+
+===Is Religion a Cause of Disregarding the COVID-19 Virus?===
 
 ```{r}
 ggplot(data=data.xls, aes(x = factor(ONLY_R, labels = c("Not Religious", "Religious")), fill = factor(CVD_EXAG, labels = c("Exaggerated", "Not Exaggerated")))) +
@@ -171,11 +173,15 @@ ggplot(data=data.xls, aes(x = factor(ONLY_R, labels = c("Not Religious", "Religi
       panel.border = element_rect(color = "black", fill = NA, size = 1))
 ```
 
+Through my findings I have found out that regardless of religion, a majority within a sample have agreed that COVID-19 was as serious as it was. I wanted to make this graph because through my own experiences during the pandemic, I witnessed many people disregarding the virus and explaining that their place of worship denied the virus being real or even an issue. This graph helps me see that it isn't really like this everywhere else.
+
+===Did the Level of Education Affect the Perception of COVID-19 as a serious issue?===
+
 ```{r}
 ggplot(data=data.xls, aes(x = factor(LVL_EDU, labels = c("College and Higher", "High School and Lower")), fill = factor(CVD_EXAG, labels = c("Exaggerated", "Not Exaggerated")))) +
     geom_bar(position = "dodge") +
     geom_text(stat='count', aes(label=..count..), position=position_dodge(0.9), vjust=-0.5) +
-    labs(title = "Does Education Impact How COVID-19 was perceived?",
+    labs(title = "Does Level of Education Impact How COVID-19 was perceived?",
          x = "Levels of Education",
          y = "Count",
          fill = "COVID-19 View") +
@@ -185,3 +191,5 @@ ggplot(data=data.xls, aes(x = factor(LVL_EDU, labels = c("College and Higher", "
       panel.grid.minor = element_blank(),
       panel.border = element_rect(color = "black", fill = NA, size = 1))
 ```
+
+A common issue that's been witnessed among many is how a lack of education can lead people to be ignorant about certain theories, ideas or health issues. One of the most leading issues would be people who practice anti-vaxxing, the act of refusing to use a vaccine for medical problems. The cause of this is usually the lack of education to help a person understand why they should be taking these medical solutions. This is one of the biggest barriers in vaccine uptake. I wanted to see if the differences in education within the sample saw COVID-19 as an issue or not. Through my research and the data provided we can see that many, highly educated or not, did see the virus as an issue to take seriously.
