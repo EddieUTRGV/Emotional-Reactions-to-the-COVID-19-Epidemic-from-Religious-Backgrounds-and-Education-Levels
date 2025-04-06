@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<meta name="progressive" content="false" />
+<meta name="allow-skip" content="false" />
+<meta name="learnr-version-prerender" content="0.11.5" />
+
+<title>Probability, Estimation, and Hypothesis Testing Tutorial</title>
+
+<!-- header-includes START -->
+<!-- HEAD_CONTENT -->
+<!-- header-includes END -->
+<!-- HEAD_CONTENT -->
+
+<!-- highlightjs -->
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+<!-- taken from https://github.com/rstudio/rmarkdown/blob/de8a9c38618903627ca509f5401d50a0876079f7/inst/rmd/h/default.html#L293-L343 -->
+<!-- tabsets -->
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+<!-- end tabsets -->
+
+
+</head>
+
+<body>
+<a class='sr-only sr-only-focusable visually-hidden-focusable' href='#learnr-tutorial-content'>Skip to Tutorial Content</a>
+
+
+
+<div class="pageContent band">
+<main class="bandContent page">
+
+<article class="topics" id="learnr-tutorial-content">
+
+<div id="section-introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This tutorial will guide you through activities demonstrating
+important statistical concepts using R. You will learn about probability
+distributions, estimation, hypothesis testing, and power analysis.</p>
+<div id="section-learning-objectives" class="section level3">
+<h3>Learning Objectives</h3>
+<ul>
+<li>Understand probability theory, estimation, and hypothesis
+testing.</li>
+<li>Visualize distributions, simulate data, and perform statistical
+tests using R.</li>
+<li>Interpret results and understand how sample size affects
+conclusions.</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="section-how-to-use-this-tutorial" class="section level2">
+<h2>How to Use This Tutorial</h2>
+<div id="section-running-the-code" class="section level4">
+<h4>Running the Code</h4>
+<ul>
+<li><p>Click the <strong>“Run Code”</strong> button next to each code
+block to see the results immediately.</p></li>
+<li><p>Plots and outputs will appear below the code block.</p></li>
+</ul>
+</div>
+<div id="section-modifying-code" class="section level4">
+<h4>Modifying Code</h4>
+<ul>
+<li><p>Each code block starts with variables at the top (e.g.,
+<code>n_trials &lt;- 10</code> or
+<code>prob_success &lt;- 0.5</code>).</p></li>
+<li><p>Change these values to see how the results are affected.</p></li>
+<li><p>Example: Change <code>n_trials</code> to <code>20</code> and see
+how the binomial distribution changes.</p></li>
+</ul>
+</div>
+<div id="section-understanding-the-code" class="section level4">
+<h4>Understanding the Code</h4>
+<ul>
+<li><p>The terminology and explanations in the notes explain what each
+part of the code is doing.</p></li>
+<li><p>Refer to the notes for definitions and context if you’re unsure
+about something.</p></li>
+</ul>
+</div>
+<div id="section-saving-your-work-if-using-posit-cloud"
+class="section level4">
+<h4>Saving Your Work (If using Posit Cloud)</h4>
+<ul>
+<li>Your changes are saved automatically in Posit Cloud.</li>
+</ul>
+</div>
+<div id="section-troubleshooting" class="section level4">
+<h4>Troubleshooting</h4>
+<ul>
+<li><p>If something doesn’t work, make sure packages like
+<code>ggplot2</code> and <code>learnr</code> are installed.</p></li>
+<li><p>Check that you’ve typed everything correctly before running the
+code.</p></li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="section-lesson-1-probability-estimation"
+class="section level2">
+<h2>Lesson 1: Probability &amp; Estimation</h2>
+<p>In this lesson, you will explore how probability theory helps us make
+sense of uncertainty. You will learn about probability distributions,
+including the binomial and normal distributions, and how they are used
+to describe and predict outcomes.</p>
+<p>Additionally, you will examine important statistical principles such
+as the Law of Large Numbers and the Central Limit Theorem. The lesson
+also introduces estimation techniques, including point estimates and
+confidence intervals, which allow us to make educated guesses about
+population parameters based on sample data.</p>
+</div>
+<div id="section-activity-1-visualizing-binomial-distribution"
+class="section level2">
+<h2>Activity 1: Visualizing Binomial Distribution</h2>
+<p>The <strong>Binomial Distribution</strong> helps us understand the
+probability of getting a certain number of successes in a fixed number
+of independent trials. Each trial has two possible outcomes (e.g.,
+success or failure), and the probability of success is the same each
+time.</p>
+<p>The binomial distribution is important when you are dealing with
+repeated trials of a simple event (like flipping a coin or answering
+true/false questions). It helps you calculate the likelihood of
+different outcomes.</p>
+<p>For example, imagine you flip a fair coin 10 times. What is the
+probability of getting exactly 6 heads? This is a typical binomial
+probability problem. If you increase the number of trials, you’re more
+likely to get results close to the average.</p>
+<div id="section-additional-terminology" class="section level3">
+<h3>Additional Terminology</h3>
+<ul>
+<li><p><strong>Trial:</strong> A single attempt or observation (e.g.,
+flipping a coin once).</p></li>
+<li><p><strong>Success:</strong> The outcome you are interested in
+measuring (e.g., getting heads on a coin flip).</p></li>
+<li><p><strong>Probability of Success (p):</strong> The likelihood of
+success on each trial.</p></li>
+<li><p><strong>Binomial Distribution:</strong> Describes the probability
+of having a certain number of successes in a set number of
+trials.</p></li>
+<li><p><strong>Probability Mass Function (PMF):</strong> A function that
+provides the probability of each outcome in a discrete
+distribution.</p></li>
+</ul>
+</div>
+<div id="section-activity-instructions" class="section level3">
+<h3>Activity Instructions</h3>
+<p>This activity demonstrates a Binomial Distribution. Modify the code
+to see how changing the probability of success or the number of trials
+affects the distribution.</p>
+<ul>
+<li>Try changing the probability of success to <code>0.7</code> and
+increasing the number of trials to <code>20</code>.</li>
+<li>Observe how the distribution changes and explain why this
+happens.</li>
+</ul>
+<div class="tutorial-exercise" data-label="binomial_dist"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>library(ggplot2)
+
+prob_success &lt;- 0.5
+n_trials &lt;- 10
+x_values &lt;- 0:n_trials
+binom_probs &lt;- dbinom(
+  x_values, 
+  size = n_trials, 
+  prob = prob_success)
+
+binom_data &lt;- data.frame(
+  Successes = x_values,
+  Probability = binom_probs)
+
+plot_binom &lt;- ggplot(binom_data, aes(x = factor(Successes), y = Probability)) +
+  geom_bar(
+    stat = &quot;identity&quot;, 
+    fill = &quot;steelblue&quot;) +
+  labs(
+    title = paste(&quot;Binomial Distribution (&quot;, n_trials, &quot;trials, p = &quot;, prob_success, &quot;)&quot;), 
+    x = &quot;Number of Successes&quot;, 
+    y = &quot;Probability&quot;) +
+  theme_minimal()
+
+print(plot_binom)</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<hr />
+</div>
+</div>
+<div id="section-activity-2-plotting-normal-distribution"
+class="section level2">
+<h2>Activity 2: Plotting Normal Distribution</h2>
+<p>The <strong>Normal Distribution</strong> is a way to describe data
+that tends to be around a central value, with most values close to the
+mean and fewer values as you move away. It looks like a bell-shaped
+curve.</p>
+<p>Many things in the real world (like people’s heights, test scores,
+etc.) are normally distributed. It’s also a key part of many statistical
+methods, so understanding this distribution is critical.</p>
+<div id="section-characteristics" class="section level3">
+<h3>Characteristics</h3>
+<ul>
+<li><p><strong>Bell-shaped curve</strong>.</p></li>
+<li><p><strong>Symmetrical</strong> — The left and right sides are
+mirror images.</p></li>
+<li><p><strong>Mean (µ)</strong> — The center of the
+distribution.</p></li>
+<li><p><strong>Standard Deviation (σ)</strong> — How spread out the data
+is.</p></li>
+</ul>
+<p>The Normal Distribution is essential because so many statistical
+tests rely on it. It helps predict the likelihood of data points within
+a certain range (e.g., within one standard deviation of the mean).</p>
+</div>
+<div id="section-additional-terminology-1" class="section level3">
+<h3>Additional Terminology</h3>
+<ul>
+<li><p><strong>Mean (µ):</strong> The average or center of a data
+set.</p></li>
+<li><p><strong>Standard Deviation (σ):</strong> A measure of how spread
+out the data is around the mean.</p></li>
+<li><p><strong>Probability Density Function (PDF):</strong> A function
+that describes the probability of a continuous random variable falling
+within a particular range of values.</p></li>
+<li><p><strong>Normal Distribution:</strong> A continuous, bell-shaped
+distribution symmetrical around its mean.</p></li>
+</ul>
+</div>
+<div id="section-activity-instructions-1" class="section level3">
+<h3>Activity Instructions</h3>
+<p>This activity shows a Normal Distribution, which is commonly used in
+statistics. Modify the code to visualize different normal
+distributions.</p>
+<ul>
+<li>Change the range of <code>x</code> from <code>-6</code> to
+<code>6</code> and plot the normal distribution again. What changes do
+you observe?</li>
+<li>Try adjusting the <code>mean</code> and
+<code>standard deviation</code> of the distribution.</li>
+</ul>
+<div class="tutorial-exercise" data-label="normal_dist"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>library(ggplot2)
+
+x &lt;- seq(-4, 4, length = 100)
+y &lt;- dnorm(x)
+
+norm_data &lt;- data.frame(x = x, y = y)
+
+plot_norm &lt;- ggplot(norm_data, aes(x = x, y = y)) +
+  geom_line(
+    color = &quot;darkred&quot;, 
+    linewidth = 1) +
+  labs(
+    title = &quot;Standard Normal Distribution&quot;, 
+    x = &quot;Z&quot;, 
+    y = &quot;Density&quot;) +
+  theme_minimal()
+
+print(plot_norm)</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<hr />
+</div>
+</div>
+<div id="section-activity-3-law-of-large-numbers-simulation"
+class="section level2">
+<h2>Activity 3: Law of Large Numbers Simulation</h2>
+<p>The <strong>Law of Large Numbers</strong> says that when you take
+more and more samples, the average of those samples will get closer to
+the actual population mean.</p>
+<p>If you only look at a few data points, your results can be very
+misleading. But when you look at a lot of data, your estimates are much
+more reliable.</p>
+<p>Larger samples give more accurate estimates of what’s true for the
+whole population. This is why scientists often try to collect as much
+data as possible.</p>
+<div id="section-additional-terminology-2" class="section level3">
+<h3>Additional Terminology</h3>
+<ul>
+<li><p><strong>Population Mean:</strong> The true average of all
+possible measurements in a population.</p></li>
+<li><p><strong>Sample Mean:</strong> The average of measurements taken
+from a sample of the population.</p></li>
+<li><p><strong>Law of Large Numbers:</strong> A principle stating that
+larger samples provide more accurate estimates of the population
+mean.</p></li>
+</ul>
+</div>
+<div id="section-activity-instructions-2" class="section level3">
+<h3>Activity Instructions</h3>
+<p>See how increasing the sample size affects the sample mean’s
+accuracy.</p>
+<ul>
+<li>Modify the <code>sample_sizes</code> to include <code>50000</code>
+and <code>100000</code>. What happens to the sample mean as the sample
+size increases?</li>
+<li>Compare the results with smaller sample sizes and explain your
+observations.</li>
+</ul>
+<div class="tutorial-exercise" data-label="large_numbers"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>set.seed(123)
+sample_sizes &lt;- c(10, 100, 1000, 10000)
+means &lt;- sapply(sample_sizes, function(n) mean(rnorm(n, mean = 50, sd = 10)))
+
+results &lt;- data.frame(
+  Sample_Size = sample_sizes, 
+  Sample_Mean = means)
+
+print(results)</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<hr />
+</div>
+</div>
+<div id="section-activity-4-central-limit-theorem-simulation"
+class="section level2">
+<h2>Activity 4: Central Limit Theorem Simulation</h2>
+<p>The <strong>Central Limit Theorem (CLT)</strong> says that if you
+take enough samples, the distribution of their means will look like a
+normal distribution, even if the original data isn’t normal.</p>
+<p>The CLT is a big deal because it allows us to use normal distribution
+techniques even when the data itself is not normally distributed.</p>
+<p>As sample size increases, the shape of the distribution of sample
+means becomes more like a normal distribution. This is true even if the
+original data is not normally distributed.</p>
+<div id="section-additional-terminology-3" class="section level3">
+<h3>Additional Terminology</h3>
+<ul>
+<li><p><strong>Central Limit Theorem (CLT):</strong> The principle that
+the distribution of sample means approaches a normal distribution as the
+sample size increases, regardless of the original population
+distribution.</p></li>
+<li><p><strong>Sampling Distribution:</strong> The distribution of a
+statistic (like the mean) calculated from multiple samples.</p></li>
+<li><p><strong>Sample Size (n):</strong> The number of observations in a
+single sample.</p></li>
+</ul>
+</div>
+<div id="section-activity-instructions-3" class="section level3">
+<h3>Activity Instructions</h3>
+<p>Observe how the sampling distribution of the mean becomes
+approximately normal as sample size increases.</p>
+<ul>
+<li>Change the number of samples drawn (<code>n</code>) to
+<code>500</code> and compare the distribution with the default.</li>
+<li>Describe what happens to the shape of the distribution as the number
+of samples increases.</li>
+</ul>
+<div class="tutorial-exercise" data-label="central_limit"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>library(ggplot2)
+
+set.seed(123)
+n &lt;- 1000
+samples &lt;- replicate(1000, mean(rexp(n, rate = 0.5)))
+sample_data &lt;- data.frame(Sample_Mean = samples)
+
+plot_clt &lt;- ggplot(sample_data, aes(x = Sample_Mean)) +
+  geom_histogram(
+    bins = 30, 
+    fill = &quot;lightblue&quot;, 
+    color = &quot;black&quot;) +
+  labs(
+    title = &quot;Central Limit Theorem: Sampling Distribution of the Mean&quot;, 
+    x = &quot;Sample Mean&quot;, 
+    y = &quot;Frequency&quot;) +
+  theme_minimal()
+
+print(plot_clt)</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<hr />
+</div>
+</div>
+<div id="section-lesson-2-hypothesis-testing" class="section level2">
+<h2>Lesson 2: Hypothesis Testing</h2>
+<p>This lesson focuses on hypothesis testing, a fundamental tool for
+making decisions about data. You will learn how to formulate and test
+hypotheses, including understanding null and alternative hypotheses,
+Type I and Type II errors, statistical power, and effect sizes.</p>
+<p>Through interactive activities, you will apply hypothesis testing
+methods using t-tests and binomial tests, as well as explore how
+statistical power influences the reliability of your findings. This
+lesson helps you connect the concepts of probability and estimation to
+real-world decision-making.</p>
+</div>
+<div id="section-activity-5-two-sample-t-test" class="section level2">
+<h2>Activity 5: Two-Sample t-Test</h2>
+<p>The <strong>Two-Sample <em>t</em>-Test</strong> is used to compare
+the means of two separate groups to see if they are statistically
+different from each other.</p>
+<p>It’s a standard tool for comparing groups in research studies, like
+comparing the effect of two different teaching methods on test
+scores.</p>
+<ul>
+<li><p>If the <em>p</em>-value is small (e.g., less than 0.05), it
+suggests the groups are different.</p></li>
+<li><p>If the <em>p</em>-value is large, it suggests the groups are
+similar.</p></li>
+</ul>
+<div id="section-additional-terminology-4" class="section level3">
+<h3>Additional Terminology</h3>
+<ul>
+<li><p><strong>Null Hypothesis (H<sub>0)</sub>:</strong> The assumption
+that there is no difference between the groups.</p></li>
+<li><p><strong>Alternative Hypothesis (H<sub>1</sub>):</strong> The
+assumption that there is a significant difference between the
+groups.</p></li>
+<li><p><strong><em>t</em>-Statistic:</strong> A value used to determine
+whether the difference between groups is statistically
+significant.</p></li>
+<li><p><strong><em>p</em>-value:</strong> A measure of how likely the
+observed data would occur if the null hypothesis were true.</p></li>
+</ul>
+</div>
+<div id="section-activity-instructions-4" class="section level3">
+<h3>Activity Instructions</h3>
+<p>Compare the means of two groups using a t-test.</p>
+<ul>
+<li>Modify the sample sizes and means of each group. What happens to the
+<code>p-value</code> when the groups are more similar?</li>
+</ul>
+<div class="tutorial-exercise" data-label="two_sample_t_test"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>set.seed(123)
+group1 &lt;- rnorm(30, mean = 100, sd = 15)
+group2 &lt;- rnorm(30, mean = 105, sd = 15)
+
+t_test_result &lt;- t.test(group1, group2)
+t_test_result</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<hr />
+</div>
+</div>
+<div id="section-activity-6-binomial-test" class="section level2">
+<h2>Activity 6: Binomial Test</h2>
+<p>The <strong>Binomial Test</strong> checks if the proportion of
+successes in a sample is different from what you’d expect by chance.</p>
+<p>It’s handy when you want to see if a result is unusual compared to a
+known probability (like flipping a coin that’s supposed to be fair).</p>
+<p>This test is good for checking if observed proportions match what you
+would expect.</p>
+<div id="section-additional-terminology-5" class="section level3">
+<h3>Additional Terminology</h3>
+<ul>
+<li><p><strong>Proportion:</strong> The fraction or percentage of
+successes in a sample (e.g., 62 out of 100 trials).</p></li>
+<li><p><strong>Null Hypothesis (H<sub>0</sub>):</strong> The assumption
+that the observed proportion is equal to a known or expected
+proportion.</p></li>
+<li><p><strong>Alternative Hypothesis (H<sub>1</sub>):</strong> The
+assumption that the observed proportion is different from the known
+proportion.</p></li>
+<li><p><strong><em>p</em>-Value:</strong> The probability of observing
+the data, or something more extreme, if the null hypothesis is
+true.</p></li>
+<li><p><strong>Significance Level (α):</strong> The threshold for
+deciding whether to reject the null hypothesis (commonly 0.05).</p></li>
+</ul>
+</div>
+<div id="section-activity-instructions-5" class="section level3">
+<h3>Activity Instructions</h3>
+<p>Use a binomial test to check if a proportion is significantly
+different from a hypothesized value.</p>
+<ul>
+<li>Change the number of <code>successes</code> and <code>trials</code>.
+Observe how the <code>p-value</code> changes and explain why this
+happens.</li>
+</ul>
+<div class="tutorial-exercise" data-label="binomial_test"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>successes &lt;- 62
+trials &lt;- 100
+
+binom_test_result &lt;- binom.test(successes, trials, p = 0.5)
+binom_test_result</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<hr />
+</div>
+</div>
+<div id="section-activity-7-power-calculation" class="section level2">
+<h2>Activity 7: Power Calculation</h2>
+<p><strong>Statistical Power</strong> is the probability of finding a
+real effect when there is one (avoiding a false negative).</p>
+<p>If your study has low power, you might miss important findings. High
+power makes your results more reliable.</p>
+<p>Power is influenced by sample size, effect size, and significance
+level. Higher power is better.</p>
+<div id="section-additional-terminology-6" class="section level3">
+<h3>Additional Terminology</h3>
+<ul>
+<li><p><strong>Statistical Power (1 - β):</strong> The probability of
+finding an effect when it truly exists.</p></li>
+<li><p><strong>Type I Error (α):</strong> Incorrectly rejecting a true
+null hypothesis (false positive).</p></li>
+<li><p><strong>Type II Error (β):</strong> Failing to reject a false
+null hypothesis (false negative).</p></li>
+<li><p><strong>Effect Size:</strong> The magnitude of the difference or
+relationship being tested. Larger effect sizes are easier to
+detect.</p></li>
+<li><p><strong>Sample Size (n):</strong> The number of observations used
+in the statistical test. Increasing sample size generally increases
+power.</p></li>
+<li><p><strong>Significance Level (α):</strong> The probability of
+making a Type I error, commonly set at 0.05.</p></li>
+</ul>
+</div>
+<div id="section-activity-instructions-6" class="section level3">
+<h3>Activity Instructions</h3>
+<p>Calculate statistical power and explore how power changes with sample
+size.</p>
+<ul>
+<li>Adjust the sample size and effect size. Observe how the power value
+changes.</li>
+</ul>
+<div class="tutorial-exercise" data-label="power_calculation"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>power_result &lt;- power.t.test(
+                    n = 30, 
+                    delta = 5, 
+                    sd = 15, 
+                    sig.level = 0.05, 
+                    type = &quot;two.sample&quot;
+                  )
+
+power_result</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<hr />
+</div>
+</div>
+<div id="section-activity-8-power-analysis-plot" class="section level2">
+<h2>Activity 8: Power Analysis Plot</h2>
+<p>Visualizing statistical power helps you understand how factors like
+sample size, effect size, and significance level impact the ability to
+detect true effects.</p>
+<p>Seeing how power changes helps you design better experiments and
+avoid missing real effects.</p>
+<p>Increasing the sample size usually increases power. Adjusting the
+effect size or significance level can also change the power.</p>
+<div id="section-additional-terminology-7" class="section level3">
+<h3>Additional Terminology</h3>
+<ul>
+<li><p><strong>Power Curve:</strong> A graph showing how statistical
+power changes as sample size or effect size changes.</p></li>
+<li><p><strong>Power Analysis:</strong> A technique for determining the
+required sample size to achieve a desired level of power.</p></li>
+<li><p><strong>Effect Size (Cohen’s <em>d</em>):</strong> A measure of
+the strength of the difference between two groups.</p></li>
+<li><p><strong>Sample Size (<em>n</em>):</strong> The number of
+observations in a study. Larger samples generally provide higher
+power.</p></li>
+<li><p><strong>Significance Level (α):</strong> The cutoff for rejecting
+the null hypothesis. Lower α levels make it harder to detect true
+effects but reduce false positives.</p></li>
+</ul>
+</div>
+<div id="section-activity-instructions-7" class="section level3">
+<h3>Activity Instructions</h3>
+<p>Visualize how sample size influences statistical power.</p>
+<ul>
+<li>Change the range of <code>sample_sizes</code> from <code>10</code>
+to <code>200</code> and compare results.</li>
+</ul>
+<div class="tutorial-exercise" data-label="power_plot"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>library(ggplot2)
+sample_sizes &lt;- seq(10, 100, by = 5)
+powers &lt;- sapply(sample_sizes, function(n) power.t.test(n = n, delta = 5, sd = 15, sig.level = 0.05)$power)
+power_data &lt;- data.frame(Sample_Size = sample_sizes, Power = powers)
+
+plot_power &lt;- ggplot(power_data, aes(x = Sample_Size, y = Power)) +
+  geom_line(
+    color = &quot;blue&quot;, 
+    linewidth = 1) +
+  labs(
+    title = &quot;Power Analysis: Effect of Sample Size&quot;, 
+    x = &quot;Sample Size&quot;, 
+    y = &quot;Power&quot;) +
+  theme_minimal()
+
+print(plot_power)</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<hr />
+<p>
+<script type="application/shiny-prerendered" data-context="server-start">
+library(learnr)
+library(ggplot2)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::register_http_handlers(session, metadata = NULL)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::prepare_tutorial_state(session)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::i18n_observe_tutorial_language(input, session)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+session$onSessionEnded(function() {
+        learnr:::event_trigger(session, "session_stop")
+      })
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-binomial_dist-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-binomial_dist-code-editor`)), session)
+output$`tutorial-exercise-binomial_dist-output` <- renderUI({
+  `tutorial-exercise-binomial_dist-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "binomial_dist", global_setup = structure(c("library(learnr)", 
+"library(ggplot2)"), chunk_opts = list(label = "setup", include = FALSE)), 
+    setup = NULL, chunks = list(list(label = "binomial_dist", 
+        code = "library(ggplot2)\n\nprob_success <- 0.5\nn_trials <- 10\nx_values <- 0:n_trials\nbinom_probs <- dbinom(\n  x_values, \n  size = n_trials, \n  prob = prob_success)\n\nbinom_data <- data.frame(\n  Successes = x_values,\n  Probability = binom_probs)\n\nplot_binom <- ggplot(binom_data, aes(x = factor(Successes), y = Probability)) +\n  geom_bar(\n    stat = \"identity\", \n    fill = \"steelblue\") +\n  labs(\n    title = paste(\"Binomial Distribution (\", n_trials, \"trials, p = \", prob_success, \")\"), \n    x = \"Number of Successes\", \n    y = \"Probability\") +\n  theme_minimal()\n\nprint(plot_binom)", 
+        opts = list(label = "\"binomial_dist\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "Prob-Estim-and-Hypothesis-Testing_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "Prob-Estim-and-Hypothesis-Testing_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, label = "binomial_dist", exercise = TRUE, 
+        code = c("library(ggplot2)", "", "prob_success <- 0.5", 
+        "n_trials <- 10", "x_values <- 0:n_trials", "binom_probs <- dbinom(", 
+        "  x_values, ", "  size = n_trials, ", "  prob = prob_success)", 
+        "", "binom_data <- data.frame(", "  Successes = x_values,", 
+        "  Probability = binom_probs)", "", "plot_binom <- ggplot(binom_data, aes(x = factor(Successes), y = Probability)) +", 
+        "  geom_bar(", "    stat = \"identity\", ", "    fill = \"steelblue\") +", 
+        "  labs(", "    title = paste(\"Binomial Distribution (\", n_trials, \"trials, p = \", prob_success, \")\"), ", 
+        "    x = \"Number of Successes\", ", "    y = \"Probability\") +", 
+        "  theme_minimal()", "", "print(plot_binom)"), out.width.px = 624, 
+        out.height.px = 384, params.src = "binomial_dist, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-normal_dist-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-normal_dist-code-editor`)), session)
+output$`tutorial-exercise-normal_dist-output` <- renderUI({
+  `tutorial-exercise-normal_dist-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "normal_dist", global_setup = structure(c("library(learnr)", 
+"library(ggplot2)"), chunk_opts = list(label = "setup", include = FALSE)), 
+    setup = NULL, chunks = list(list(label = "normal_dist", code = "library(ggplot2)\n\nx <- seq(-4, 4, length = 100)\ny <- dnorm(x)\n\nnorm_data <- data.frame(x = x, y = y)\n\nplot_norm <- ggplot(norm_data, aes(x = x, y = y)) +\n  geom_line(\n    color = \"darkred\", \n    linewidth = 1) +\n  labs(\n    title = \"Standard Normal Distribution\", \n    x = \"Z\", \n    y = \"Density\") +\n  theme_minimal()\n\nprint(plot_norm)", 
+        opts = list(label = "\"normal_dist\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "Prob-Estim-and-Hypothesis-Testing_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "Prob-Estim-and-Hypothesis-Testing_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, label = "normal_dist", exercise = TRUE, 
+        code = c("library(ggplot2)", "", "x <- seq(-4, 4, length = 100)", 
+        "y <- dnorm(x)", "", "norm_data <- data.frame(x = x, y = y)", 
+        "", "plot_norm <- ggplot(norm_data, aes(x = x, y = y)) +", 
+        "  geom_line(", "    color = \"darkred\", ", "    linewidth = 1) +", 
+        "  labs(", "    title = \"Standard Normal Distribution\", ", 
+        "    x = \"Z\", ", "    y = \"Density\") +", "  theme_minimal()", 
+        "", "print(plot_norm)"), out.width.px = 624, out.height.px = 384, 
+        params.src = "normal_dist, exercise = TRUE", fig.num = 0, 
+        exercise.df_print = "paged", exercise.checker = "NULL"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-large_numbers-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-large_numbers-code-editor`)), session)
+output$`tutorial-exercise-large_numbers-output` <- renderUI({
+  `tutorial-exercise-large_numbers-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "large_numbers", global_setup = structure(c("library(learnr)", 
+"library(ggplot2)"), chunk_opts = list(label = "setup", include = FALSE)), 
+    setup = NULL, chunks = list(list(label = "large_numbers", 
+        code = "set.seed(123)\nsample_sizes <- c(10, 100, 1000, 10000)\nmeans <- sapply(sample_sizes, function(n) mean(rnorm(n, mean = 50, sd = 10)))\n\nresults <- data.frame(\n  Sample_Size = sample_sizes, \n  Sample_Mean = means)\n\nprint(results)", 
+        opts = list(label = "\"large_numbers\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "Prob-Estim-and-Hypothesis-Testing_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "Prob-Estim-and-Hypothesis-Testing_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, label = "large_numbers", exercise = TRUE, 
+        code = c("set.seed(123)", "sample_sizes <- c(10, 100, 1000, 10000)", 
+        "means <- sapply(sample_sizes, function(n) mean(rnorm(n, mean = 50, sd = 10)))", 
+        "", "results <- data.frame(", "  Sample_Size = sample_sizes, ", 
+        "  Sample_Mean = means)", "", "print(results)"), out.width.px = 624, 
+        out.height.px = 384, params.src = "large_numbers, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-central_limit-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-central_limit-code-editor`)), session)
+output$`tutorial-exercise-central_limit-output` <- renderUI({
+  `tutorial-exercise-central_limit-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "central_limit", global_setup = structure(c("library(learnr)", 
+"library(ggplot2)"), chunk_opts = list(label = "setup", include = FALSE)), 
+    setup = NULL, chunks = list(list(label = "central_limit", 
+        code = "library(ggplot2)\n\nset.seed(123)\nn <- 1000\nsamples <- replicate(1000, mean(rexp(n, rate = 0.5)))\nsample_data <- data.frame(Sample_Mean = samples)\n\nplot_clt <- ggplot(sample_data, aes(x = Sample_Mean)) +\n  geom_histogram(\n    bins = 30, \n    fill = \"lightblue\", \n    color = \"black\") +\n  labs(\n    title = \"Central Limit Theorem: Sampling Distribution of the Mean\", \n    x = \"Sample Mean\", \n    y = \"Frequency\") +\n  theme_minimal()\n\nprint(plot_clt)", 
+        opts = list(label = "\"central_limit\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "Prob-Estim-and-Hypothesis-Testing_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "Prob-Estim-and-Hypothesis-Testing_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, label = "central_limit", exercise = TRUE, 
+        code = c("library(ggplot2)", "", "set.seed(123)", "n <- 1000", 
+        "samples <- replicate(1000, mean(rexp(n, rate = 0.5)))", 
+        "sample_data <- data.frame(Sample_Mean = samples)", "", 
+        "plot_clt <- ggplot(sample_data, aes(x = Sample_Mean)) +", 
+        "  geom_histogram(", "    bins = 30, ", "    fill = \"lightblue\", ", 
+        "    color = \"black\") +", "  labs(", "    title = \"Central Limit Theorem: Sampling Distribution of the Mean\", ", 
+        "    x = \"Sample Mean\", ", "    y = \"Frequency\") +", 
+        "  theme_minimal()", "", "print(plot_clt)"), out.width.px = 624, 
+        out.height.px = 384, params.src = "central_limit, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-two_sample_t_test-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-two_sample_t_test-code-editor`)), session)
+output$`tutorial-exercise-two_sample_t_test-output` <- renderUI({
+  `tutorial-exercise-two_sample_t_test-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "two_sample_t_test", global_setup = structure(c("library(learnr)", 
+"library(ggplot2)"), chunk_opts = list(label = "setup", include = FALSE)), 
+    setup = NULL, chunks = list(list(label = "two_sample_t_test", 
+        code = "set.seed(123)\ngroup1 <- rnorm(30, mean = 100, sd = 15)\ngroup2 <- rnorm(30, mean = 105, sd = 15)\n\nt_test_result <- t.test(group1, group2)\nt_test_result", 
+        opts = list(label = "\"two_sample_t_test\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "Prob-Estim-and-Hypothesis-Testing_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "Prob-Estim-and-Hypothesis-Testing_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, label = "two_sample_t_test", exercise = TRUE, 
+        code = c("set.seed(123)", "group1 <- rnorm(30, mean = 100, sd = 15)", 
+        "group2 <- rnorm(30, mean = 105, sd = 15)", "", "t_test_result <- t.test(group1, group2)", 
+        "t_test_result"), out.width.px = 624, out.height.px = 384, 
+        params.src = "two_sample_t_test, exercise = TRUE", fig.num = 0, 
+        exercise.df_print = "paged", exercise.checker = "NULL"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-binomial_test-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-binomial_test-code-editor`)), session)
+output$`tutorial-exercise-binomial_test-output` <- renderUI({
+  `tutorial-exercise-binomial_test-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "binomial_test", global_setup = structure(c("library(learnr)", 
+"library(ggplot2)"), chunk_opts = list(label = "setup", include = FALSE)), 
+    setup = NULL, chunks = list(list(label = "binomial_test", 
+        code = "successes <- 62\ntrials <- 100\n\nbinom_test_result <- binom.test(successes, trials, p = 0.5)\nbinom_test_result", 
+        opts = list(label = "\"binomial_test\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "Prob-Estim-and-Hypothesis-Testing_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "Prob-Estim-and-Hypothesis-Testing_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, label = "binomial_test", exercise = TRUE, 
+        code = c("successes <- 62", "trials <- 100", "", "binom_test_result <- binom.test(successes, trials, p = 0.5)", 
+        "binom_test_result"), out.width.px = 624, out.height.px = 384, 
+        params.src = "binomial_test, exercise = TRUE", fig.num = 0, 
+        exercise.df_print = "paged", exercise.checker = "NULL"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-power_calculation-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-power_calculation-code-editor`)), session)
+output$`tutorial-exercise-power_calculation-output` <- renderUI({
+  `tutorial-exercise-power_calculation-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "power_calculation", global_setup = structure(c("library(learnr)", 
+"library(ggplot2)"), chunk_opts = list(label = "setup", include = FALSE)), 
+    setup = NULL, chunks = list(list(label = "power_calculation", 
+        code = "power_result <- power.t.test(\n                    n = 30, \n                    delta = 5, \n                    sd = 15, \n                    sig.level = 0.05, \n                    type = \"two.sample\"\n                  )\n\npower_result", 
+        opts = list(label = "\"power_calculation\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "Prob-Estim-and-Hypothesis-Testing_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "Prob-Estim-and-Hypothesis-Testing_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, label = "power_calculation", exercise = TRUE, 
+        code = c("power_result <- power.t.test(", "                    n = 30, ", 
+        "                    delta = 5, ", "                    sd = 15, ", 
+        "                    sig.level = 0.05, ", "                    type = \"two.sample\"", 
+        "                  )", "", "power_result"), out.width.px = 624, 
+        out.height.px = 384, params.src = "power_calculation, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-power_plot-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-power_plot-code-editor`)), session)
+output$`tutorial-exercise-power_plot-output` <- renderUI({
+  `tutorial-exercise-power_plot-result`()
+})
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "power_plot", global_setup = structure(c("library(learnr)", 
+"library(ggplot2)"), chunk_opts = list(label = "setup", include = FALSE)), 
+    setup = NULL, chunks = list(list(label = "power_plot", code = "library(ggplot2)\nsample_sizes <- seq(10, 100, by = 5)\npowers <- sapply(sample_sizes, function(n) power.t.test(n = n, delta = 5, sd = 15, sig.level = 0.05)$power)\npower_data <- data.frame(Sample_Size = sample_sizes, Power = powers)\n\nplot_power <- ggplot(power_data, aes(x = Sample_Size, y = Power)) +\n  geom_line(\n    color = \"blue\", \n    linewidth = 1) +\n  labs(\n    title = \"Power Analysis: Effect of Sample Size\", \n    x = \"Sample Size\", \n    y = \"Power\") +\n  theme_minimal()\n\nprint(plot_power)", 
+        opts = list(label = "\"power_plot\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "Prob-Estim-and-Hypothesis-Testing_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "Prob-Estim-and-Hypothesis-Testing_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = TRUE, error = FALSE, 
+        message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, label = "power_plot", exercise = TRUE, 
+        code = c("library(ggplot2)", "sample_sizes <- seq(10, 100, by = 5)", 
+        "powers <- sapply(sample_sizes, function(n) power.t.test(n = n, delta = 5, sd = 15, sig.level = 0.05)$power)", 
+        "power_data <- data.frame(Sample_Size = sample_sizes, Power = powers)", 
+        "", "plot_power <- ggplot(power_data, aes(x = Sample_Size, y = Power)) +", 
+        "  geom_line(", "    color = \"blue\", ", "    linewidth = 1) +", 
+        "  labs(", "    title = \"Power Analysis: Effect of Sample Size\", ", 
+        "    x = \"Sample Size\", ", "    y = \"Power\") +", 
+        "  theme_minimal()", "", "print(plot_power)"), out.width.px = 624, 
+        out.height.px = 384, params.src = "power_plot, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged", exercise.checker = "NULL"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+</p>
+<!--html_preserve-->
+<script type="application/shiny-prerendered" data-context="dependencies">
+{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["header-attrs"]},{"type":"character","attributes":{},"value":["2.29"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/pandoc"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["header-attrs.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["bootstrap"]},{"type":"character","attributes":{},"value":["3.3.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/bootstrap"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["viewport"]}},"value":[{"type":"character","attributes":{},"value":["width=device-width, initial-scale=1"]}]},{"type":"character","attributes":{},"value":["js/bootstrap.min.js","shim/html5shiv.min.js","shim/respond.min.js"]},{"type":"character","attributes":{},"value":["css/cerulean.min.css"]},{"type":"character","attributes":{},"value":["<style>h1 {font-size: 34px;}\n       h1.title {font-size: 38px;}\n       h2 {font-size: 30px;}\n       h3 {font-size: 24px;}\n       h4 {font-size: 18px;}\n       h5 {font-size: 16px;}\n       h6 {font-size: 12px;}\n       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}\n       pre:not([class]) { background-color: white }<\/style>"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["pagedtable"]},{"type":"character","attributes":{},"value":["1.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/pagedtable-1.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["js/pagedtable.js"]},{"type":"character","attributes":{},"value":["css/pagedtable.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["highlightjs"]},{"type":"character","attributes":{},"value":["9.12.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/highlightjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["highlight.js"]},{"type":"character","attributes":{},"value":["textmate.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial"]},{"type":"character","attributes":{},"value":["0.11.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial.js"]},{"type":"character","attributes":{},"value":["tutorial.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["i18n"]},{"type":"character","attributes":{},"value":["21.6.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/i18n"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["i18next.min.js","tutorial-i18n-init.js"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["<script id=\"i18n-cstm-trns\" type=\"application/json\">{\"language\":\"en\",\"resources\":{\"en\":{\"translation\":{\"button\":{\"runcode\":\"Run Code\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Hint\",\"hint_plural\":\"Hints\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Next Hint\",\"hintprev\":\"Previous Hint\",\"solution\":\"Solution\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copy to Clipboard\",\"startover\":\"Start Over\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continue\",\"submitanswer\":\"Submit Answer\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Previous Topic\",\"nexttopic\":\"Next Topic\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Try Again\"},\"text\":{\"startover\":\"Start Over\",\"areyousure\":\"Are you sure you want to start over? (all exercise progress will be reset)\",\"youmustcomplete\":\"You must complete the\",\"exercise\":\"exercise\",\"exercise_plural\":\"exercises\",\"inthissection\":\"in this section before continuing.\",\"code\":\"Code\",\"enginecap\":\"{{engine}} $t(text.code)\",\"quiz\":\"Quiz\",\"blank\":\"blank\",\"blank_plural\":\"blanks\",\"exercisecontainsblank\":\"This exercise contains {{count}} $t(text.blank).\",\"pleasereplaceblank\":\"Please replace {{blank}} with valid code.\",\"unparsable\":\"It looks like this might not be valid R code. R cannot determine how to turn your text into a complete command. You may have forgotten to fill in a blank, to remove an underscore, to include a comma between arguments, or to close an opening <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> or <code>{<\\/code> with a matching <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> or <code>}<\\/code>.\\n\",\"unparsablequotes\":\"<p>It looks like your R code contains specially formatted quotation marks or &quot;curly&quot; quotes (<code>{{character}}<\\/code>) around character strings, making your code invalid. R requires character values to be contained in straight quotation marks (<code>&quot;<\\/code> or <code>'<\\/code>).<\\/p> {{code}} <p>Don't worry, this is a common source of errors when you copy code from another app that applies its own formatting to text. You can try replacing the code on that line with the following. There may be other places that need to be fixed, too.<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>It looks like your R code contains an unexpected special character (<code>{{character}}<\\/code>) that makes your code invalid.<\\/p> {{code}} <p>Sometimes your code may contain a special character that looks like a regular character, especially if you copy and paste the code from another app. Try deleting the special character from your code and retyping it manually.<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>It looks like your R code contains an unexpected special character (<code>{{character}}<\\/code>) that makes your code invalid.<\\/p> {{code}} <p>Sometimes your code may contain a special character that looks like a regular character, especially if you copy and paste the code from another app. You can try replacing the code on that line with the following. There may be other places that need to be fixed, too.<\\/p> {{suggestion}}\\n\",\"and\":\"and\",\"or\":\"or\",\"listcomma\":\", \",\"oxfordcomma\":\",\"}}},\"fr\":{\"translation\":{\"button\":{\"runcode\":\"Lancer le Code\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Indication\",\"hint_plural\":\"Indications\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Indication Suivante\",\"hintprev\":\"Indication Précédente\",\"solution\":\"Solution\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copier dans le Presse-papier\",\"startover\":\"Recommencer\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuer\",\"submitanswer\":\"Soumettre\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Chapitre Précédent\",\"nexttopic\":\"Chapitre Suivant\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Réessayer\"},\"text\":{\"startover\":\"Recommencer\",\"areyousure\":\"Êtes-vous certains de vouloir recommencer? (La progression sera remise à zéro)\",\"youmustcomplete\":\"Vous devez d'abord compléter\",\"exercise\":\"l'exercice\",\"exercise_plural\":\"des exercices\",\"inthissection\":\"de cette section avec de continuer.\",\"code\":\"Code\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"and\":\"et\",\"or\":\"ou\",\"oxfordcomma\":\"\"}}},\"es\":{\"translation\":{\"button\":{\"runcode\":\"Ejecutar código\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Pista\",\"hint_plural\":\"Pistas\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Siguiente pista\",\"hintprev\":\"Pista anterior\",\"solution\":\"Solución\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copiar al portapapeles\",\"startover\":\"Reiniciar\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuar\",\"submitanswer\":\"Enviar respuesta\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Tema anterior\",\"nexttopic\":\"Tema siguiente\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Volver a intentar\"},\"text\":{\"startover\":\"Reiniciar\",\"areyousure\":\"¿De verdad quieres empezar de nuevo? (todo el progreso del ejercicio se perderá)\",\"youmustcomplete\":\"Debes completar\",\"exercise\":\"el ejercicio\",\"exercise_plural\":\"los ejercicios\",\"inthissection\":\"en esta sección antes de continuar.\",\"code\":\"Código\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Cuestionario\",\"and\":\"y\",\"or\":\"o\",\"oxfordcomma\":\"\"}}},\"pt\":{\"translation\":{\"button\":{\"runcode\":\"Executar código\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Dica\",\"hint_plural\":\"Dicas\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Próxima dica\",\"hintprev\":\"Dica anterior\",\"solution\":\"Solução\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copiar para a área de transferência\",\"startover\":\"Reiniciar\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuar\",\"submitanswer\":\"Enviar resposta\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Tópico anterior\",\"nexttopic\":\"Próximo tópico\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Tentar novamente\"},\"text\":{\"startover\":\"Reiniciar\",\"areyousure\":\"Tem certeza que deseja começar novamente? (todo o progresso feito será perdido)\",\"youmustcomplete\":\"Você deve completar\",\"exercise\":\"o exercício\",\"exercise_plural\":\"os exercícios\",\"inthissection\":\"nesta seção antes de continuar.\",\"code\":\"Código\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"and\":\"e\",\"or\":\"ou\",\"oxfordcomma\":\"\"}}},\"tr\":{\"translation\":{\"button\":{\"runcode\":\"Çalıştırma Kodu\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Ipucu\",\"hint_plural\":\"İpuçları\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Sonraki İpucu\",\"hintprev\":\"Önceki İpucu\",\"solution\":\"Çözüm\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Pano'ya Kopyala\",\"startover\":\"Baştan Başlamak\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Devam et\",\"submitanswer\":\"Cevabı onayla\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Önceki Konu\",\"nexttopic\":\"Sonraki Konu\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Tekrar Deneyin\"},\"text\":{\"startover\":\"Baştan Başlamak\",\"areyousure\":\"Baştan başlamak istediğinizden emin misiniz? (tüm egzersiz ilerlemesi kaybolacak)\",\"youmustcomplete\":\"Tamamlamalısın\",\"exercise\":\"egzersiz\",\"exercise_plural\":\"egzersizler\",\"inthissection\":\"devam etmeden önce bu bölümde\",\"code\":\"Kod\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Sınav\",\"oxfordcomma\":\"\"}}},\"emo\":{\"translation\":{\"button\":{\"runcode\":\"🏃\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"💡\",\"hint_plural\":\"$t(button.hint)\",\"hinttitle\":\"$t(button.hint)\",\"solution\":\"🎯\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"📋\",\"startover\":\"⏮\",\"startovertitle\":\"Start Over\",\"continue\":\"✅\",\"submitanswer\":\"🆗\",\"submitanswertitle\":\"Submit Answer\",\"previoustopic\":\"⬅\",\"nexttopic\":\"➡\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"🔁\"},\"text\":{\"startover\":\"⏮\",\"areyousure\":\"🤔\",\"youmustcomplete\":\"⚠️ 👉 🧑‍💻\",\"exercise\":\"\",\"exercise_plural\":\"\",\"inthissection\":\"\",\"code\":\"💻\",\"enginecap\":\"$t(text.code) {{engine}}\",\"oxfordcomma\":\"\"}}},\"eu\":{\"translation\":{\"button\":{\"runcode\":\"Kodea egikaritu\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Laguntza\",\"hint_plural\":\"Laguntza\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Aurreko laguntza\",\"hintprev\":\"Hurrengo laguntza\",\"solution\":\"Ebazpena\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Arbelean kopiatu\",\"startover\":\"Berrabiarazi\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Jarraitu\",\"submitanswer\":\"Erantzuna bidali\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Aurreko atala\",\"nexttopic\":\"Hurrengo atala\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Berriro saiatu\"},\"text\":{\"startover\":\"Berrabiarazi\",\"areyousure\":\"Berriro hasi nahi duzu? (egindako lana galdu egingo da)\",\"youmustcomplete\":\"Aurrera egin baino lehen atal honetako\",\"exercise\":\"ariketa egin behar duzu.\",\"exercise_plural\":\"ariketak egin behar dituzu.\",\"inthissection\":\"\",\"code\":\"Kodea\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Galdetegia\",\"oxfordcomma\":\"\"}}},\"de\":{\"translation\":{\"button\":{\"runcode\":\"Code ausführen\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Tipp\",\"hint_plural\":\"Tipps\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Nächster Tipp\",\"hintprev\":\"Vorheriger Tipp\",\"solution\":\"Lösung\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"In die Zwischenablage kopieren\",\"startover\":\"Neustart\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Weiter\",\"submitanswer\":\"Antwort einreichen\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Vorheriges Kapitel\",\"nexttopic\":\"Nächstes Kapitel\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Nochmal versuchen\"},\"text\":{\"startover\":\"Neustart\",\"areyousure\":\"Bist du sicher, dass du neustarten willst? (der gesamte Lernfortschritt wird gelöscht)\",\"youmustcomplete\":\"Vervollstädinge\",\"exercise\":\"die Übung\",\"exercise_plural\":\"die Übungen\",\"inthissection\":\"in diesem Kapitel, bevor du fortfährst.\",\"code\":\"Code\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"blank\":\"Lücke\",\"blank_plural\":\"Lücken\",\"pleasereplaceblank\":\"Bitte ersetze {{blank}} mit gültigem Code.\",\"unparsable\":\"Dies scheint kein gültiger R Code zu sein. R kann deinen Text nicht in einen gültigen Befehl übersetzen. Du hast vielleicht vergessen, die Lücke zu füllen, einen Unterstrich zu entfernen, ein Komma zwischen Argumente zu setzen oder ein eröffnendes <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> oder <code>{<\\/code> mit einem zugehörigen <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> oder <code>}<\\/code> zu schließen.\\n\",\"and\":\"und\",\"or\":\"oder\",\"listcomma\":\", \",\"oxfordcomma\":\",\"}}},\"ko\":{\"translation\":{\"button\":{\"runcode\":\"코드 실행\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"힌트\",\"hint_plural\":\"힌트들\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"다음 힌트\",\"hintprev\":\"이전 힌트\",\"solution\":\"솔루션\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"클립보드에 복사\",\"startover\":\"재학습\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"다음 학습으로\",\"submitanswer\":\"정답 제출\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"이전 토픽\",\"nexttopic\":\"다음 토픽\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"재시도\"},\"text\":{\"startover\":\"재학습\",\"areyousure\":\"다시 시작 하시겠습니까? (모든 예제의 진행 정보가 재설정됩니다)\",\"youmustcomplete\":\"당신은 완료해야 합니다\",\"exercise\":\"연습문제\",\"exercise_plural\":\"연습문제들\",\"inthissection\":\"이 섹션을 실행하기 전에\",\"code\":\"코드\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"퀴즈\",\"blank\":\"공백\",\"blank_plural\":\"공백들\",\"exercisecontainsblank\":\"이 연습문제에는 {{count}}개의 $t(text.blank)이 포함되어 있습니다.\",\"pleasereplaceblank\":\"{{blank}}를 유효한 코드로 바꾸십시오.\",\"unparsable\":\"이것은 유효한 R 코드가 아닐 수 있습니다. R은 텍스트를 완전한 명령으로 변환하는 방법을 결정할 수 없습니다. 당신은 공백이나 밑줄을 대체하여 채우기, 인수를 컴마로 구분하기, 또는 <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> , <code>{<\\/code>로 시작하는 구문을 닫는 <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code>, <code>}<\\/code>을 잊었을 수도 있습니다.\\n\",\"and\":\"그리고\",\"or\":\"혹은\",\"listcomma\":\", \",\"oxfordcomma\":\"\"}}},\"zh\":{\"translation\":{\"button\":{\"runcode\":\"运行代码\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"提示\",\"hint_plural\":\"提示\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"下一个提示\",\"hintprev\":\"上一个提示\",\"solution\":\"答案\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"复制到剪切板\",\"startover\":\"重新开始\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"继续\",\"submitanswer\":\"提交答案\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"上一专题\",\"nexttopic\":\"下一专题\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"再试一次\"},\"text\":{\"startover\":\"重置\",\"areyousure\":\"你确定要重新开始吗? (所有当前进度将被重置)\",\"youmustcomplete\":\"你必须完成\",\"exercise\":\"练习\",\"exercise_plural\":\"练习\",\"inthissection\":\"在进行本节之前\",\"code\":\"代码\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"测试\",\"blank\":\"空\",\"blank_plural\":\"空\",\"exercisecontainsblank\":\"本练习包含{{count}}个$t(text.blank)\",\"pleasereplaceblank\":\"请在{{blank}}内填写恰当的代码\",\"unparsable\":\"这似乎不是有效的R代码。 R不知道如何将您的文本转换为完整的命令。 您是否忘了填空，忘了删除下划线，忘了在参数之间包含逗号，或者是忘了用<code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code>,<code>}<\\/code>来封闭<code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code>。 or <code>{<\\/code>。\\n\",\"unparsablequotes\":\"<p>您的R代码中似乎含有特殊格式的引号，或者弯引号(<code>{{character}}<\\/code>) 在字符串前后，在R中字符串应该被直引号(<code>&quot;<\\/code> 或者 <code>'<\\/code>)包裹。<\\/p> {{code}} <p>别担心，该错误经常在复制粘贴包含格式的代码时遇到， 您可以尝试将该行中的代码替换为以下代码，也许还有其他地方需要修改。<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>您的代码中似乎包含有异常字符(<code>{{character}}<\\/code>),导致代码无效。<\\/p> {{code}} <p>有时候你的代码可能含有看似正常字符的特殊字符，特别是当你复制粘贴其他来源代码的时候。 请试着删除这些特殊字符,重新输入<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>您的代码中似乎包含有异常字符(<code>{{character}}<\\/code>),导致代码无效。<\\/p> {{code}} <p>有时候你的代码可能含有看似正常字符的特殊字符，特别是当你复制粘贴其他来源代码的时候。 请试着删除这些特殊字符,重新输入<\\/p>\\n\",\"and\":\"且\",\"or\":\"或\",\"listcomma\":\",\",\"oxfordcomma\":\",\"}}},\"pl\":{\"translation\":{\"button\":{\"runcode\":\"Uruchom kod\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Podpowiedź\",\"hint_plural\":\"Podpowiedzi\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Następna podpowiedź\",\"hintprev\":\"Poprzednia podpowiedź\",\"solution\":\"Rozwiązanie\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Kopiuj do schowka\",\"startover\":\"Zacznij od początku\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Kontynuuj\",\"submitanswer\":\"Wyślij\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Poprzednia sekcja\",\"nexttopic\":\"Następna sekcja\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Spróbuj ponownie\"},\"text\":{\"startover\":\"Zacznij od początku\",\"areyousure\":\"Czy na pewno chcesz zacząć od początku? (cały postęp w zadaniu zostanie utracony)\",\"youmustcomplete\":\"Musisz ukończyć\",\"exercise\":\"ćwiczenie\",\"exercise_plural\":\"ćwiczenia\",\"inthissection\":\"w tej sekcji przed kontynuowaniem\",\"code\":\"Kod\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"blank\":\"luka\",\"blank_plural\":\"luk(i)\",\"exercisecontainsblank\":\"To ćwiczenie zawiera {{count}} $t(text.blank).\",\"pleasereplaceblank\":\"Proszę uzupełnić {{blank}} prawidłowym kodem.\",\"unparsable\":\"Wygląda na to, że może to nie być prawidłowy kod R. R nie jest w stanie przetworzyć Twojego tekstu na polecenie. Mogłeś(-aś) zapomnieć wypełnić luki, usunąć podkreślnik, umieścić przecinka między argumentami, lub zamknąć znak <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> lub <code>{<\\/code> odpowiadającym <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> lub <code>}<\\/code>.\\n\",\"unparsablequotes\":\"<p>Wygląda na to, że Twój kod zawiera szczególnie sformatowane cudzysłowy lub cudzysłowy typograficzne (<code>{{character}}<\\/code>) przy ciągach znaków, co sprawia, że kod jest niepoprawny. R wymaga cudzysłowów prostych (<code>&quot;<\\/code> albo <code>'<\\/code>).<\\/p> {{code}} <p>Nie martw się, to powszechne źródło błędów, gdy kopiuje się kod z innego programu, który sam formatuje teskt. Możesz spróbować zastąpić swój kod następującym kodem. Mogą być też inne miejsca, które wymagają poprawienia.<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>Wygląda na to, że Twój kod zawiera niespodziewany znak specjalny (<code>{{character}}<\\/code>), co sprawia, że kod jest niepoprawny.<\\/p> {{code}} <p>Czasami Twój kod może zawierać znak specjalny, który wygląda jak zwykły znak, zwłaszcza jeśli kopiujesz kod z innego programu. Spróbuj usunąć znak specjalny i wpisać do ponownie ręcznie.<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>Wygląda na to, że Twój kod zawiera niespodziewany znak specjalny (<code>{{character}}<\\/code>), co sprawia, że kod jest niepoprawny.<\\/p> {{code}} <p>Czasami Twój kod może zawierać znak specjalny, który wygląda jak zwykły znak, zwłaszcza jeśli kopiujesz kod z innego programu. Możesz spróbować zastąpić swój kod następującym kodem. Mogą być też inne miejsca, które wymagają poprawienia.<\\/p> {{suggestion}}\\n\",\"and\":\"i\",\"or\":\"lub\",\"listcomma\":\", \",\"oxfordcomma\":\"\"}}}}}<\/script>"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial-format"]},{"type":"character","attributes":{},"value":["0.11.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmarkdown/templates/tutorial/resources"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial-format.js"]},{"type":"character","attributes":{},"value":["tutorial-format.css","rstudio-theme.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["navigation"]},{"type":"character","attributes":{},"value":["1.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/navigation-1.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tabsets.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["highlightjs"]},{"type":"character","attributes":{},"value":["9.12.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/highlightjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["highlight.js"]},{"type":"character","attributes":{},"value":["default.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["font-awesome"]},{"type":"character","attributes":{},"value":["6.5.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["fontawesome"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["css/all.min.css","css/v4-shims.min.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["fontawesome"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.5.3"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["bootbox"]},{"type":"character","attributes":{},"value":["5.5.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/bootbox"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["bootbox.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["idb-keyvalue"]},{"type":"character","attributes":{},"value":["3.2.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/idb-keyval"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["idb-keyval-iife-compat.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[false]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial"]},{"type":"character","attributes":{},"value":["0.11.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial.js"]},{"type":"character","attributes":{},"value":["tutorial.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]}]}
+</script>
+<!--/html_preserve-->
+<!--html_preserve-->
+<script type="application/shiny-prerendered" data-context="execution_dependencies">
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56]}},"value":[{"type":"character","attributes":{},"value":["backports","base","bslib","cachem","checkmate","cli","colorspace","compiler","datasets","digest","dplyr","evaluate","fastmap","fontawesome","generics","ggplot2","glue","graphics","grDevices","grid","gtable","htmltools","htmlwidgets","httpuv","jquerylib","jsonlite","knitr","later","learnr","lifecycle","magrittr","methods","mime","munsell","pillar","pkgconfig","promises","R6","Rcpp","rlang","rmarkdown","rprojroot","rstudioapi","sass","scales","shiny","stats","tibble","tidyselect","tools","utils","vctrs","withr","xfun","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.5.0","4.4.3","0.9.0","1.1.0","2.3.2","3.6.3","2.1-1","4.4.3","4.4.3","0.6.37","1.1.4","1.0.3","1.2.0","0.5.3","0.1.3","3.5.1","1.8.0","4.4.3","4.4.3","4.4.3","0.3.6","0.5.8.1","1.6.4","1.6.15","0.1.4","1.8.9","1.49","1.4.1","0.11.5","1.0.4","2.0.3","4.4.3","0.12","0.5.1","1.10.1","2.0.3","1.3.2","2.5.1","1.0.14","1.1.5","2.29","2.0.4","0.17.1","0.4.9","1.3.0","1.10.0","4.4.3","3.2.1","1.2.1","4.4.3","4.4.3","0.6.5","3.0.2","0.50","1.8-4","2.3.10"]}]}]}
+</script>
+<!--/html_preserve-->
+</div>
+</div>
+
+</article> <!-- topics -->
+
+<div class="topicsContainer">
+<div class="topicsPositioner">
+<div class="band">
+<div class="bandContent topicsListContainer">
+
+<!-- begin doc-metadata -->
+<div id="doc-metadata">
+<h1 class="title toc-ignore" style="display:none;">Probability,
+Estimation, and Hypothesis Testing Tutorial</h1>
+</div>
+<!-- end doc-metadata -->
+
+</div> <!-- bandContent.topicsListContainer -->
+</div> <!-- band -->
+</div> <!-- topicsPositioner -->
+</div> <!-- topicsContainer -->
+
+
+</main> <!-- bandContent page -->
+</div> <!-- pageContent band -->
+
+
+
+<!-- Build Tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("section-TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<script>
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+</body>
+
+</html>

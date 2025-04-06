@@ -1,0 +1,429 @@
+---
+title: "Probability, Estimation, and Hypothesis Testing Tutorial"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(ggplot2)
+```
+
+## Introduction
+
+This tutorial will guide you through activities demonstrating important statistical concepts using R. You will learn about probability distributions, estimation, hypothesis testing, and power analysis.
+
+### Learning Objectives
+
+-   Understand probability theory, estimation, and hypothesis testing.
+-   Visualize distributions, simulate data, and perform statistical tests using R.
+-   Interpret results and understand how sample size affects conclusions.
+
+------------------------------------------------------------------------
+
+## How to Use This Tutorial
+
+#### Running the Code
+
+-   Click the **“Run Code”** button next to each code block to see the results immediately.
+
+-   Plots and outputs will appear below the code block.
+
+#### Modifying Code
+
+-   Each code block starts with variables at the top (e.g., `n_trials <- 10` or `prob_success <- 0.5`).
+
+-   Change these values to see how the results are affected.
+
+-   Example: Change `n_trials` to `20` and see how the binomial distribution changes.
+
+#### Understanding the Code
+
+-   The terminology and explanations in the notes explain what each part of the code is doing.
+
+-   Refer to the notes for definitions and context if you’re unsure about something.
+
+#### Saving Your Work (If using Posit Cloud)
+
+-   Your changes are saved automatically in Posit Cloud.
+
+#### Troubleshooting
+
+-   If something doesn’t work, make sure packages like `ggplot2` and `learnr` are installed.
+
+-   Check that you’ve typed everything correctly before running the code.
+
+------------------------------------------------------------------------
+
+## Lesson 1: Probability & Estimation
+
+In this lesson, you will explore how probability theory helps us make sense of uncertainty. You will learn about probability distributions, including the binomial and normal distributions, and how they are used to describe and predict outcomes.
+
+Additionally, you will examine important statistical principles such as the Law of Large Numbers and the Central Limit Theorem. The lesson also introduces estimation techniques, including point estimates and confidence intervals, which allow us to make educated guesses about population parameters based on sample data.
+
+## Activity 1: Visualizing Binomial Distribution
+
+The **Binomial Distribution** helps us understand the probability of getting a certain number of successes in a fixed number of independent trials. Each trial has two possible outcomes (e.g., success or failure), and the probability of success is the same each time.
+
+The binomial distribution is important when you are dealing with repeated trials of a simple event (like flipping a coin or answering true/false questions). It helps you calculate the likelihood of different outcomes.
+
+For example, imagine you flip a fair coin 10 times. What is the probability of getting exactly 6 heads? This is a typical binomial probability problem. If you increase the number of trials, you’re more likely to get results close to the average.
+
+### Additional Terminology
+
+-   **Trial:** A single attempt or observation (e.g., flipping a coin once).
+
+-   **Success:** The outcome you are interested in measuring (e.g., getting heads on a coin flip).
+
+-   **Probability of Success (p):** The likelihood of success on each trial.
+
+-   **Binomial Distribution:** Describes the probability of having a certain number of successes in a set number of trials.
+
+-   **Probability Mass Function (PMF):** A function that provides the probability of each outcome in a discrete distribution.
+
+### Activity Instructions
+
+This activity demonstrates a Binomial Distribution. Modify the code to see how changing the probability of success or the number of trials affects the distribution.
+
+-   Try changing the probability of success to `0.7` and increasing the number of trials to `20`.
+-   Observe how the distribution changes and explain why this happens.
+
+```{r binomial_dist, exercise = TRUE}
+library(ggplot2)
+
+prob_success <- 0.5
+n_trials <- 10
+x_values <- 0:n_trials
+binom_probs <- dbinom(
+  x_values, 
+  size = n_trials, 
+  prob = prob_success)
+
+binom_data <- data.frame(
+  Successes = x_values,
+  Probability = binom_probs)
+
+plot_binom <- ggplot(binom_data, aes(x = factor(Successes), y = Probability)) +
+  geom_bar(
+    stat = "identity", 
+    fill = "steelblue") +
+  labs(
+    title = paste("Binomial Distribution (", n_trials, "trials, p = ", prob_success, ")"), 
+    x = "Number of Successes", 
+    y = "Probability") +
+  theme_minimal()
+
+print(plot_binom)
+```
+
+------------------------------------------------------------------------
+
+## Activity 2: Plotting Normal Distribution
+
+The **Normal Distribution** is a way to describe data that tends to be around a central value, with most values close to the mean and fewer values as you move away. It looks like a bell-shaped curve.
+
+Many things in the real world (like people's heights, test scores, etc.) are normally distributed. It’s also a key part of many statistical methods, so understanding this distribution is critical.
+
+### Characteristics
+
+-   **Bell-shaped curve**.
+
+-   **Symmetrical** — The left and right sides are mirror images.
+
+-   **Mean (µ)** — The center of the distribution.
+
+-   **Standard Deviation (σ)** — How spread out the data is.
+
+The Normal Distribution is essential because so many statistical tests rely on it. It helps predict the likelihood of data points within a certain range (e.g., within one standard deviation of the mean).
+
+### Additional Terminology
+
+-   **Mean (µ):** The average or center of a data set.
+
+-   **Standard Deviation (σ):** A measure of how spread out the data is around the mean.
+
+-   **Probability Density Function (PDF):** A function that describes the probability of a continuous random variable falling within a particular range of values.
+
+-   **Normal Distribution:** A continuous, bell-shaped distribution symmetrical around its mean.
+
+### Activity Instructions
+
+This activity shows a Normal Distribution, which is commonly used in statistics. Modify the code to visualize different normal distributions.
+
+-   Change the range of `x` from `-6` to `6` and plot the normal distribution again. What changes do you observe?
+-   Try adjusting the `mean` and `standard deviation` of the distribution.
+
+```{r normal_dist, exercise = TRUE}
+library(ggplot2)
+
+x <- seq(-4, 4, length = 100)
+y <- dnorm(x)
+
+norm_data <- data.frame(x = x, y = y)
+
+plot_norm <- ggplot(norm_data, aes(x = x, y = y)) +
+  geom_line(
+    color = "darkred", 
+    linewidth = 1) +
+  labs(
+    title = "Standard Normal Distribution", 
+    x = "Z", 
+    y = "Density") +
+  theme_minimal()
+
+print(plot_norm)
+```
+
+------------------------------------------------------------------------
+
+## Activity 3: Law of Large Numbers Simulation
+
+The **Law of Large Numbers** says that when you take more and more samples, the average of those samples will get closer to the actual population mean.
+
+If you only look at a few data points, your results can be very misleading. But when you look at a lot of data, your estimates are much more reliable.
+
+Larger samples give more accurate estimates of what’s true for the whole population. This is why scientists often try to collect as much data as possible.
+
+### Additional Terminology
+
+-   **Population Mean:** The true average of all possible measurements in a population.
+
+-   **Sample Mean:** The average of measurements taken from a sample of the population.
+
+-   **Law of Large Numbers:** A principle stating that larger samples provide more accurate estimates of the population mean.
+
+### Activity Instructions
+
+See how increasing the sample size affects the sample mean’s accuracy.
+
+-   Modify the `sample_sizes` to include `50000` and `100000`. What happens to the sample mean as the sample size increases?
+-   Compare the results with smaller sample sizes and explain your observations.
+
+```{r large_numbers, exercise = TRUE}
+set.seed(123)
+sample_sizes <- c(10, 100, 1000, 10000)
+means <- sapply(sample_sizes, function(n) mean(rnorm(n, mean = 50, sd = 10)))
+
+results <- data.frame(
+  Sample_Size = sample_sizes, 
+  Sample_Mean = means)
+
+print(results)
+```
+
+------------------------------------------------------------------------
+
+## Activity 4: Central Limit Theorem Simulation
+
+The **Central Limit Theorem (CLT)** says that if you take enough samples, the distribution of their means will look like a normal distribution, even if the original data isn’t normal.
+
+The CLT is a big deal because it allows us to use normal distribution techniques even when the data itself is not normally distributed.
+
+As sample size increases, the shape of the distribution of sample means becomes more like a normal distribution. This is true even if the original data is not normally distributed.
+
+### Additional Terminology
+
+-   **Central Limit Theorem (CLT):** The principle that the distribution of sample means approaches a normal distribution as the sample size increases, regardless of the original population distribution.
+
+-   **Sampling Distribution:** The distribution of a statistic (like the mean) calculated from multiple samples.
+
+-   **Sample Size (n):** The number of observations in a single sample.
+
+### Activity Instructions
+
+Observe how the sampling distribution of the mean becomes approximately normal as sample size increases.
+
+-   Change the number of samples drawn (`n`) to `500` and compare the distribution with the default.
+-   Describe what happens to the shape of the distribution as the number of samples increases.
+
+```{r central_limit, exercise = TRUE}
+library(ggplot2)
+
+set.seed(123)
+n <- 1000
+samples <- replicate(1000, mean(rexp(n, rate = 0.5)))
+sample_data <- data.frame(Sample_Mean = samples)
+
+plot_clt <- ggplot(sample_data, aes(x = Sample_Mean)) +
+  geom_histogram(
+    bins = 30, 
+    fill = "lightblue", 
+    color = "black") +
+  labs(
+    title = "Central Limit Theorem: Sampling Distribution of the Mean", 
+    x = "Sample Mean", 
+    y = "Frequency") +
+  theme_minimal()
+
+print(plot_clt)
+```
+
+------------------------------------------------------------------------
+
+## Lesson 2: Hypothesis Testing
+
+This lesson focuses on hypothesis testing, a fundamental tool for making decisions about data. You will learn how to formulate and test hypotheses, including understanding null and alternative hypotheses, Type I and Type II errors, statistical power, and effect sizes.
+
+Through interactive activities, you will apply hypothesis testing methods using t-tests and binomial tests, as well as explore how statistical power influences the reliability of your findings. This lesson helps you connect the concepts of probability and estimation to real-world decision-making.
+
+## Activity 5: Two-Sample t-Test
+
+The **Two-Sample *t*-Test** is used to compare the means of two separate groups to see if they are statistically different from each other.
+
+It’s a standard tool for comparing groups in research studies, like comparing the effect of two different teaching methods on test scores.
+
+-   If the *p*-value is small (e.g., less than 0.05), it suggests the groups are different.
+
+-   If the *p*-value is large, it suggests the groups are similar.
+
+### Additional Terminology
+
+-   **Null Hypothesis (H~0)~:** The assumption that there is no difference between the groups.
+
+-   **Alternative Hypothesis (H~1~):** The assumption that there is a significant difference between the groups.
+
+-   ***t*****-Statistic:** A value used to determine whether the difference between groups is statistically significant.
+
+-   ***p*****-value:** A measure of how likely the observed data would occur if the null hypothesis were true.
+
+### Activity Instructions
+
+Compare the means of two groups using a t-test.
+
+-   Modify the sample sizes and means of each group. What happens to the `p-value` when the groups are more similar?
+
+```{r two_sample_t_test, exercise = TRUE}
+set.seed(123)
+group1 <- rnorm(30, mean = 100, sd = 15)
+group2 <- rnorm(30, mean = 105, sd = 15)
+
+t_test_result <- t.test(group1, group2)
+t_test_result
+```
+
+------------------------------------------------------------------------
+
+## Activity 6: Binomial Test
+
+The **Binomial Test** checks if the proportion of successes in a sample is different from what you’d expect by chance.
+
+It’s handy when you want to see if a result is unusual compared to a known probability (like flipping a coin that’s supposed to be fair).
+
+This test is good for checking if observed proportions match what you would expect.
+
+### Additional Terminology
+
+-   **Proportion:** The fraction or percentage of successes in a sample (e.g., 62 out of 100 trials).
+
+-   **Null Hypothesis (H~0~):** The assumption that the observed proportion is equal to a known or expected proportion.
+
+-   **Alternative Hypothesis (H~1~):** The assumption that the observed proportion is different from the known proportion.
+
+-   ***p*****-Value:** The probability of observing the data, or something more extreme, if the null hypothesis is true.
+
+-   **Significance Level (α):** The threshold for deciding whether to reject the null hypothesis (commonly 0.05).
+
+### Activity Instructions
+
+Use a binomial test to check if a proportion is significantly different from a hypothesized value.
+
+-   Change the number of `successes` and `trials`. Observe how the `p-value` changes and explain why this happens.
+
+```{r binomial_test, exercise = TRUE}
+successes <- 62
+trials <- 100
+
+binom_test_result <- binom.test(successes, trials, p = 0.5)
+binom_test_result
+```
+
+------------------------------------------------------------------------
+
+## Activity 7: Power Calculation
+
+**Statistical Power** is the probability of finding a real effect when there is one (avoiding a false negative).
+
+If your study has low power, you might miss important findings. High power makes your results more reliable.
+
+Power is influenced by sample size, effect size, and significance level. Higher power is better.
+
+### Additional Terminology
+
+-   **Statistical Power (1 - β):** The probability of finding an effect when it truly exists.
+
+-   **Type I Error (α):** Incorrectly rejecting a true null hypothesis (false positive).
+
+-   **Type II Error (β):** Failing to reject a false null hypothesis (false negative).
+
+-   **Effect Size:** The magnitude of the difference or relationship being tested. Larger effect sizes are easier to detect.
+
+-   **Sample Size (n):** The number of observations used in the statistical test. Increasing sample size generally increases power.
+
+-   **Significance Level (α):** The probability of making a Type I error, commonly set at 0.05.
+
+### Activity Instructions
+
+Calculate statistical power and explore how power changes with sample size.
+
+-   Adjust the sample size and effect size. Observe how the power value changes.
+
+```{r power_calculation, exercise = TRUE}
+power_result <- power.t.test(
+                    n = 30, 
+                    delta = 5, 
+                    sd = 15, 
+                    sig.level = 0.05, 
+                    type = "two.sample"
+                  )
+
+power_result
+```
+
+------------------------------------------------------------------------
+
+## Activity 8: Power Analysis Plot
+
+Visualizing statistical power helps you understand how factors like sample size, effect size, and significance level impact the ability to detect true effects.
+
+Seeing how power changes helps you design better experiments and avoid missing real effects.
+
+Increasing the sample size usually increases power. Adjusting the effect size or significance level can also change the power.
+
+### Additional Terminology
+
+-   **Power Curve:** A graph showing how statistical power changes as sample size or effect size changes.
+
+-   **Power Analysis:** A technique for determining the required sample size to achieve a desired level of power.
+
+-   **Effect Size (Cohen's *d*):** A measure of the strength of the difference between two groups.
+
+-   **Sample Size (*n*):** The number of observations in a study. Larger samples generally provide higher power.
+
+-   **Significance Level (α):** The cutoff for rejecting the null hypothesis. Lower α levels make it harder to detect true effects but reduce false positives.
+
+### Activity Instructions
+
+Visualize how sample size influences statistical power.
+
+-   Change the range of `sample_sizes` from `10` to `200` and compare results.
+
+```{r power_plot, exercise = TRUE}
+library(ggplot2)
+sample_sizes <- seq(10, 100, by = 5)
+powers <- sapply(sample_sizes, function(n) power.t.test(n = n, delta = 5, sd = 15, sig.level = 0.05)$power)
+power_data <- data.frame(Sample_Size = sample_sizes, Power = powers)
+
+plot_power <- ggplot(power_data, aes(x = Sample_Size, y = Power)) +
+  geom_line(
+    color = "blue", 
+    linewidth = 1) +
+  labs(
+    title = "Power Analysis: Effect of Sample Size", 
+    x = "Sample Size", 
+    y = "Power") +
+  theme_minimal()
+
+print(plot_power)
+```
+
+------------------------------------------------------------------------
