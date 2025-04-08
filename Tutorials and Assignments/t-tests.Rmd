@@ -1,0 +1,318 @@
+---
+title: "t-tests"
+output: learnr::tutorial
+runtime: shiny_prerendered
+tutorial:
+  id: t_test_tutorial
+  title: "t-Test Test Using Your Own Data"
+  description: "Learn how to run a t-test test and check assumptions using R"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, include=FALSE}
+library(learnr)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(effsize)
+```
+
+## *t*-Tests: Comparing Means
+
+In this tutorial, we’ll walk through how to compare means using three
+different types of ***t*****-tests**, depending on your data and
+research design.
+
+When we compare two sets of numbers (like test scores, weights, or
+ratings), we use t-tests to help figure out whether the differences we
+see are meaningful or just due to chance.
+
+These tests are helpful in answering questions like:
+
+-   Is the average score in a class significantly different from a
+    passing score (like 70)?
+-   Do students in two different classrooms score differently on the
+    same test?
+-   Does a group’s average performance improve after an intervention
+    (like a training session)?
+
+We will walk through three types of *t*-tests:
+
+1.  One-sample t-test
+2.  Independent-samples t-test
+3.  Dependent-samples (paired) t-test
+
+What do you need to use a t-test?
+
+-   A **continuous** (numeric) outcome variable (like test score,
+    height, or weight)
+
+-   **Grouping variable** (only for independent/dependent t-tests)
+
+-   Reasonable **sample size** (not too small)
+
+-   **Normal** distribution (especially for small samples)
+
+-   No significant **outliers**
+
+### One- vs. Two-Tailed Tests
+
+What's a one-tailed or two-tailed test?
+
+-   A **two-tailed test** checks for any difference (higher or lower)
+-   A **one-tailed test** checks for a difference in a specific
+    direction (only higher *or* only lower)
+
+------------------------------------------------------------------------
+
+## One-Sample *t*-Test
+
+### When to Use This Test
+
+Use the one-sample *t*-test when you want to compare the mean of your
+sample to a known or hypothesized population value.
+
+**Example:** Suppose we know the national average exam score is 75, and
+we want to see if our class scores differently.
+
+### **Assumptions**
+
+-   You're testing **one group** against a **single value**.
+-   Data are **continuous** (interval/ratio scale) and approximately
+    **normally distributed**.
+-   Observations are **independent**.
+
+### **Template Code**
+
+``` r
+# default is two-tailed
+t.test(data$variable, mu = 75) 
+
+# one-tailed
+t.test(data$variable, mu = 0, alternative = "greater")
+t.test(data$variable, mu = 0, alternative = "less")
+```
+
+### Example
+
+```{r}
+# Efficency of cars
+data(mtcars)
+t.test(mtcars$mpg, mu = 30)
+```
+
+```{r warning=FALSE}
+# Visualization
+ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram(binwidth = 2, fill = "#69b3a2", alpha = 0.7, color = "white") +
+  geom_vline(xintercept = 20, linetype = "dashed", color = "red", size = 1.2) +
+  labs(
+    title = "Miles per Gallon (mpg)",
+    x = "MPG",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+```
+
+### **Interpretation**
+
+-   Look at the ***t*****-value** and ***p*****-value**: Is the
+    difference big enough to be considered unlikely by chance?
+-   Use the **confidence interval** to estimate where the true mean
+    likely falls.
+-   "A one-sample *t*-test was conducted to determine whether the mean
+    of [variable] differed significantly from [hypothesized value]. The
+    results showed that the mean [was/was not] significantly different
+    from [value], *t*(df) = t-value, *p* = p-value, *d* = effect size."
+
+------------------------------------------------------------------------
+
+## **Independent-Samples t-Test**
+
+### **When to Use This Test**
+
+Use the **independent-samples t-test** when comparing the means of **two
+[separate]{.underline} groups**.
+
+**Example:** Which bug spray is more effective, Group 1 or Group 2?
+
+### **Key Concepts**
+
+-   Groups must be **independent** (different participants in each
+    group).
+-   Assumes that the data is **normally distributed** and that the two
+    groups have **similar variances**.
+-   If variances aren’t similar, use **Welch’s t-test** (the default in
+    R).
+
+### Template Code
+
+``` r
+t.test(score ~ group, data = my_data)
+```
+
+-   Use `var.equal = TRUE` if you’re assuming equal variances.
+-   R will automatically do Welch’s t-test if variances differ.
+
+### Example
+
+```{r}
+# Load data
+data("InsectSprays")
+
+insect_grouped <- InsectSprays %>%
+  mutate(group = case_when(
+    spray %in% c("A", "B", "F") ~ "Group1",
+    spray %in% c("C", "D", "E") ~ "Group2"
+  ))
+```
+
+```{r}
+# Visualization
+ggplot(insect_grouped, aes(x = group, y = count, fill = group)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(
+    title = "Insect Counts by Spray Group",
+    x = "Spray Group",
+    y = "Number of Insects"
+  ) +
+  theme_minimal()
+
+# Possible outlier in Group 2
+```
+
+```{r}
+# Check variance
+var.test(count ~ group, data = insect_grouped)
+# Significant => therefore, use Welsh's
+```
+
+```{r}
+# Independent t-test
+t.test(count ~ group, data = insect_grouped)
+```
+
+```{r}
+# Effect size
+cohen.d(count ~ group, data = insect_grouped)
+```
+
+### **Interpretation**
+
+-   The **p-value** tells you if the group means differ significantly.
+-   Report the **effect size** (**Cohen’s d**) to describe how big the
+    difference is.
+-   "An independent-samples *t*-test was conducted to compare [insect
+    counts] between [spray groups]. There was a [significant/not
+    significant] difference in insect counts between Group1 (*M* = X̄₁)
+    and Group2 (*M* = X̄₂); *t*(df) = t-value, *p* = p-value."
+
+------------------------------------------------------------------------
+
+## **Paired-Samples t-Test**
+
+### **When to Use This Test**
+
+Use the **paired-samples t-test** when comparing **two
+[related]{.underline} measurements**—like before/after scores from the
+same people.
+
+**Example:** Did sleep improve using Drug 1 or Drug 2?
+
+### **Key Concepts**
+
+-   This test looks at the **difference between paired values** (e.g.,
+    ScoreAfter - ScoreBefore).
+-   You must have **matched or repeated measures**.
+-   Assumes the **differences** between scores are normally distributed.
+
+### **Template Code**
+
+``` r
+t.test(data$before, data$after, paired = TRUE)
+```
+
+### Example
+
+```{r}
+# Loading data
+data(sleep)
+
+# Data manipulation
+sleep_wide <- sleep %>%
+  pivot_wider(
+    id_cols = ID,
+    names_from = group,
+    values_from = extra,
+    names_prefix = "drug"
+  )
+
+print(sleep_wide)
+```
+
+```{r}
+# Relabel group variable
+sleep_labeled <- sleep %>%
+  mutate(group = factor(group, 
+                        levels = c(1, 2), 
+                        labels = c("Drug 1", "Drug 2")))
+
+# Visualization
+ggplot(sleep_labeled, aes(x = extra, fill = group)) +
+  geom_histogram(position = "identity", bins = 10, alpha = 0.6) +
+  labs(
+    title = "Histogram of Extra Sleep by Drug Group",
+    x = "Extra Sleep (hours)",
+    y = "Count",
+    fill = "Drug"
+  ) +
+  scale_fill_manual(values = c("#1f77b4", "#ff7f0e")) +
+  theme_minimal()
+```
+
+```{r}
+# Paired samples t-test
+t.test(sleep_wide$drug1, sleep_wide$drug2, paired = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Effect size
+cohen.d(sleep$extra ~ sleep$group, paired = TRUE)
+```
+
+This tells you how large the change was, in terms of standard deviations
+of the difference scores.
+
+### **Interpretation**
+
+-   A **significant p-value** means the average change was unlikely to
+    be due to chance.
+-   "A paired-samples *t*-test was conducted to compare [DV] under
+    [Condition 1] and [Condition 2]. There was a
+    [significant/non-significant] difference in scores between the two
+    conditions; *t*(df) = t-value, *p* = p-value, *d* = effect size."
+
+------------------------------------------------------------------------
+
+## Putting It All Together
+
+| Test | Use When... | R Code |
+|------------------------|------------------------|-------------------------|
+| One-sample t-test | Comparing a sample to a **known value** | `t.test(x, mu = value)` |
+| Independent-samples t-test | Comparing two **different** groups | `t.test(score ~ group)` |
+| Paired-samples t-test | Comparing **repeated** or **matched** measures | `t.test(before, after, paired = TRUE)` |
+
+------------------------------------------------------------------------
+
+## Tips for All t-tests
+
+-   **Visualize your data** first (boxplots, histograms, etc.).
+-   **Check assumptions** (especially normality and equal variances).
+-   **Report both significance and effect size**.
+-   **Use confidence intervals** to describe uncertainty.

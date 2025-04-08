@@ -1,0 +1,378 @@
+---
+title: "Chi-Squared Test Tutorial"
+output: learnr::tutorial
+runtime: shiny_prerendered
+tutorial:
+  id: chi_squared_tutorial
+  title: "Chi-Squared Test Using Your Own Data"
+  description: "Learn how to run a chi-squared test and check assumptions using R"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r gapminder, include=FALSE}
+if (!requireNamespace("gapminder", quietly = TRUE)) {
+  install.packages("gapminder")
+}
+```
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(lsr)
+library(knitr)
+library(gapminder)
+```
+
+## Introduction
+
+In this tutorial, you will learn how to run a chi-squared test using
+your own dataset. This test is used when your variables are
+**categorical**—also known as **nominal scale data**.
+
+You will:
+
+-   Learn about the types of chi-squared tests
+
+-   Upload your data
+
+-   Check assumptions
+
+-   Run the test
+
+-   Interpret the output
+
+-   Report your findings
+
+## Theory: What is a Chi-Squared Test?
+
+Chi-squared tests are used to assess whether observed categorical data
+differ significantly from what we would expect under a specific
+hypothesis.
+
+### There are two main types:
+
+1.  **Chi-Square Goodness-of-Fit Test** – Compares the distribution of a
+    [single]{.underline} categorical variable to a theoretical
+    distribution.
+2.  **Chi-Square Test of Independence** – Assesses whether
+    [two]{.underline} categorical variables are related.
+
+> Example: Do people select card suits (hearts, diamonds, clubs, spades)
+> at random? If yes, we'd expect each suit to be selected 25% of the
+> time.
+
+The test statistic is calculated as:
+
+$$
+\chi^2 = \sum \frac{(O_i - E_i)^2}{E_i}
+$$
+
+Where:
+
+$O_i$ = Observed frequency
+
+$E_i$ = Expected frequency
+
+## Step 1: Load Your Data
+
+Use the method that you developed to work with your data.
+
+```{r load_data, eval=FALSE, echo=TRUE}
+# We have used code like this
+my_data <- read_csv("your_file.csv")
+glimpse(my_data)
+```
+
+## Step 2: Summarize Your Categorical Variable
+
+```{r freq_table, eval=FALSE, echo=TRUE}
+# Replace 'your_column' with the name of your categorical column
+table(my_data$your_column)
+```
+
+We’ll use the `gapminder` dataset as an example throughout this
+tutorial. First, we’ll prepare the data by creating a categorical
+variable and summarizing it.
+
+This code will create a new variable that will determine the median
+population across all countries. Then, we will use this later to
+determine if the balance among the continents is equal.
+
+We are asking: “How many countries in this continent are above the
+global median, and how many are below?” -OR- “Is there a relationship
+between continent and being a high- or low-population country, relative
+to the global midpoint?”
+
+This gives us a **2 × 5 contingency table** (2 population categories × 5
+continents), which is perfect for a **chi-squared test of
+independence**.
+
+```{r run_gapminder_prepare, echo=TRUE, eval=TRUE}
+gapminder_sample <- gapminder %>%
+  filter(year == 2007) %>%
+  mutate(pop_cat = ifelse(pop > median(pop), "High", "Low"))
+
+table_data <- table(gapminder_sample$continent, gapminder_sample$pop_cat)
+table_data
+```
+
+Our data is now represented in a table that has one categorical variable
+in the rows (e.g., continent) and another categorical variable in the
+columns (e.g., population category). Each cell represents the count of
+how many cases fall into each combination. This table will be plugged
+into the function to run our test.
+
+## Step 3: Check Assumptions
+
+Before we proceed, we must check that we are not violating any
+assumptions for our test. Those assumptions are:
+
+1.  Expected frequency in each cell should be ≥ 5
+2.  Observations should be independent
+
+```{r assumptions, eval=FALSE, echo=TRUE}
+# Use expected frequencies to check your data
+chisq.test(table(my_data$your_column))$expected
+```
+
+We now check the assumptions of the chi-squared test: expected counts
+should be ≥ 5, and observations should be independent.
+
+```{r run_gapminder_assumptions, echo=TRUE, eval=TRUE}
+chisq_test_result <- chisq.test(table_data)
+chisq_test_result$expected
+any(chisq_test_result$expected < 5)
+```
+
+The result is `TRUE`, meaning that we have a cell that is less than 5.
+We will drop this row from our table.
+
+```{r run_gapminder_assumptions2, echo=TRUE, eval=TRUE}
+# Drop any rows that are less than 5 for example
+gapminder_sample <- gapminder_sample %>%
+  filter(continent != "Oceania")
+```
+
+*Technically, a side note*: Fisher’s Exact Test is a statistical test
+used to examine the association between two categorical variables — just
+like the chi-squared test — but specifically designed for small sample
+sizes or when expected counts are very low (usually \< 5 in one or more
+cells). In our case, to use the standard chi-squared test, we will drop
+the row that is less than 5, but Fisher's Exact Test could be used
+instead.
+
+## Step 4: Run the Chi-Squared Goodness-of-Fit Test
+
+```{r run_gof, eval=FALSE, echo=TRUE}
+# For equal probabilities
+chisq.test(table(my_data$your_column))
+```
+
+```{r run_custom_gof, eval=FALSE, echo=TRUE}
+# With custom probabilities (e.g., 0.3, 0.3, 0.2, 0.2)
+chisq.test(table(my_data$your_column), p = c(0.3, 0.3, 0.2, 0.2))
+```
+
+### **Our hypotheses**
+
+-   **Null hypothesis (**H0H_0H0​): The two variables are
+    **independent**.\
+    Population category (High/Low) is **not associated** with continent.
+
+-   **Alternative hypothesis (**HAH_AHA​): The variables are
+    **dependent**.\
+    There **is** an association between population category and
+    continent.
+
+We can now run the test and view the results.
+
+```{r run_gapminder_test, echo=TRUE, eval=TRUE}
+# We saved this object in Step 3: Check Assumptions
+# chisq_test_result <- chisq.test(table_data)
+chisq_test_result
+```
+
+## Step 5: Visualize the Distribution
+
+```{r plot_bar, echo=TRUE, eval=FALSE}
+# Observed visualization example
+ggplot(my_data, aes(x = your_column)) +
+  geom_bar() +
+  labs(title = "Observed Frequencies", x = "Category", y = "Count")
+```
+
+Visualizations help us interpret the relationship between categorical
+variables.
+
+```{r gapminder_plot, echo=TRUE, eval=TRUE}
+ggplot(gapminder_sample, aes(x = continent, fill = pop_cat)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Population Category by Continent (Gapminder 2007)",
+    x = "Continent",
+    y = "Count",
+    fill = "Population"
+  )
+```
+
+Chi-squared tests don’t evaluate **one group** (like Asia) on its own.
+They look at **all combinations** across the full table — so any single
+difference has to be strong enough to influence the **overall pattern**.
+
+One bar (Asia's "High" count) might look lower, but if other continents'
+counts are close to expected, the overall difference might still be
+**within the range of chance variation**.
+
+That is, if the observed counts **aren’t *that far off*** from expected
+ones, even visible differences may not add up to a big enough
+chi-squared value to pass the significance threshold.
+
+A fancier visualization:
+
+```{r calculate-proportions, echo=TRUE, eval=TRUE}
+library(dplyr)
+
+# Summarize data to get counts and proportions
+bar_data <- gapminder_sample %>%
+  group_by(continent, pop_cat) %>%
+  summarise(n = n()) %>%
+  group_by(continent) %>%
+  mutate(
+    prop = n / sum(n),
+    se = sqrt((prop * (1 - prop)) / sum(n)),  # standard error for a proportion
+    lower = prop - 1.96 * se,  # 95% CI lower
+    upper = prop + 1.96 * se   # 95% CI upper
+  )
+
+```
+
+```{r viz-proportions, echo=TRUE, eval=TRUE}
+ggplot(bar_data, aes(x = continent, y = prop, fill = pop_cat)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_errorbar(
+    aes(ymin = lower, ymax = upper),
+    width = 0.2,
+    position = position_dodge(width = 0.9)
+  ) +
+  labs(
+    title = "Proportion of Population Category by Continent (Gapminder 2007)",
+    x = "Continent",
+    y = "Proportion",
+    fill = "Population"
+  ) +
+  ylim(0, 1)
+
+```
+
+## Step 6: Interpret the Results
+
+```{r hidden-variables, include=FALSE}
+# Chi-squared value
+chisq_value <- chisq_test_result$statistic
+
+# Degrees of freedom
+df <- chisq_test_result$parameter
+
+# p-value
+p_val <- chisq_test_result$p.value
+```
+
+Now we interpret the test results:
+
+-   Chi-squared value
+
+-   Degrees of freedom
+
+-   p-value
+
+> If *p* \< .05, we reject the null hypothesis that the distribution is
+> what we expected.
+
+[**Example write-up:**]{.underline}
+
+"A chi-square test of goodness-of-fit was conducted to determine whether
+card suits were selected at random. The results were significant, χ²(3)
+= 8.44, *p* = .038, suggesting that choices were not equally distributed
+across suits."
+
+```{r view_gapminder_test, echo=TRUE, eval=TRUE}
+chisq_test_result
+```
+
+The chi-squared test did not reveal a significant association between
+continent and population category, $\chi^2$ =
+`r round(chisq_test_result$statistic, 2)`, df =
+`r chisq_test_result$parameter`, *p* =
+`r round(chisq_test_result$p.value, 4)`.
+
+## Analyze Your Own Data
+
+Now it's your turn! Upload a CSV file, choose a categorical column,
+check assumptions, run the test, and interpret your output.
+
+```{r student_practice, eval=FALSE, echo=TRUE}
+# Replace the placeholder with your real column name
+chisq.test(table(my_data$your_column))
+```
+
+## Optional: Chi-Squared Goodness-of-Fit
+
+You have one categorical variable, and you want to test whether its
+observed frequencies match some expected distribution. You don’t need a
+2D table — just a vector of counts.
+
+```{r test_of_independence_template, eval=FALSE, echo=TRUE}
+# Chi-Squared Goodness-of-Fit Test
+# Use this when you have ONE categorical variable 
+# and want to test expected proportions
+
+# Get observed counts
+observed <- table(my_data$var1)
+
+# Define expected proportions (must add up to 1)
+# Example: equal proportions across 3 categories
+expected <- rep(1/length(observed), length(observed))
+
+# Run the test
+chisq.test(x = observed, p = expected)
+```
+
+Suppose you have observed continent counts in 2007 (from gapminder):
+
+```{r gof-table, echo=TRUE, eval=TRUE}
+table(gapminder_sample$continent)
+```
+
+Let’s say you expect the continents to be equally represented (uniform
+distribution). Then you'd do:
+
+```{r gof-test, echo=TRUE, eval=TRUE}
+# equal proportions
+observed <- table(gapminder_sample$continent) 
+expected <- rep(1/length(observed), length(observed))
+
+chisq.test(x = observed, p = expected) 
+```
+
+This tests: “Do the observed continent frequencies differ significantly
+from what we'd expect if they were equally likely?”
+
+## Summary
+
+You now know how to:
+
+-   Describe and check assumptions of chi-squared tests
+
+-   Run both types of chi-squared tests in R
+
+-   Interpret and report the results clearly
+
+Always remember:
+
+-   Assumptions matter!
+
+-   Use visuals to support your stats
+
+-   Explain your results clearly

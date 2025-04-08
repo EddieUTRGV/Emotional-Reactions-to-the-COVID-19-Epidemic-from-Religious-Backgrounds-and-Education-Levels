@@ -193,3 +193,21 @@ ggplot(data=data.xls, aes(x = factor(LVL_EDU, labels = c("College and Higher", "
 ```
 
 A common issue that's been witnessed among many is how a lack of education can lead people to be ignorant about certain theories, ideas or health issues. One of the most leading issues would be people who practice anti-vaxxing, the act of refusing to use a vaccine for medical problems. The cause of this is usually the lack of education to help a person understand why they should be taking these medical solutions. This is one of the biggest barriers in vaccine uptake. I wanted to see if the differences in education within the sample saw COVID-19 as an issue or not. Through my research and the data provided we can see that many, highly educated or not, did see the virus as an issue to take seriously.
+
+===Chi-Square Test===
+
+```{r}
+data.xls <- read_excel(file_path)
+
+head(data.xls)
+
+table(data.xls$A3.8)
+
+contingency_table <- table(data.xls$A3.8, data.xls$`A5.3*`)
+
+print (contingency_table)
+
+chi_square_result <- chisq.test(contingency_table)
+
+print(chi_square_result)
+```
