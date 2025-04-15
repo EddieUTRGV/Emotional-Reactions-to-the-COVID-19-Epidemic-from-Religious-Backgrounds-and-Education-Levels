@@ -16,3 +16,5 @@ ggplot(starwars, aes(x = height)) +
   theme_minimal() +
   annotate("text", x = 145, y = 10, label = "Population Mean (75)", color = "red", vjust = -1)
 
+#This t-test and histogram shows us that the height of characters are taller than the hypothetical population mean of 145.
+#The p value is very low, making so that the null hypothesis of the true mean being 145 is not accurate.

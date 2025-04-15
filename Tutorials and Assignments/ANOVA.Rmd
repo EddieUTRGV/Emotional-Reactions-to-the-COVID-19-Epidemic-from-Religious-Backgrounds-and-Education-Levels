@@ -1,0 +1,425 @@
+---
+title: "ANOVA"
+output: learnr::tutorial
+runtime: shiny_prerendered
+tutorial:
+  id: anova_tutorial
+  title: "ANOVA Using Your Own Data"
+  description: "Learn how to run an ANOVA and check assumptions using R"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, include=FALSE}
+library(learnr)
+library(ggplot2)
+library(gplots)
+library(sciplot)
+library(car)
+library(lsr)
+```
+
+```{r include=FALSE}
+# Set seed for reproducibility
+set.seed(123)
+
+# Create factors
+drug <- factor(rep(c("placebo", "anxifree", "joyzepam"), each = 20))
+therapy <- factor(rep(rep(c("no.therapy", "CBT"), each = 10), times = 3))
+
+# Generate mood gain scores with some real differences:
+# Let's assume:
+# - joyzepam > anxifree > placebo
+# - CBT is generally more effective than no therapy
+# - Slight interaction: anxifree + CBT gives a bigger-than-expected boost
+
+mood.gain <- c(
+  rnorm(10, mean = 0.2, sd = 0.3),  # placebo, no.therapy
+  rnorm(10, mean = 0.5, sd = 0.3),  # placebo, CBT
+  rnorm(10, mean = 0.7, sd = 0.3),  # anxifree, no.therapy
+  rnorm(10, mean = 1.2, sd = 0.3),  # anxifree, CBT (interaction boost)
+  rnorm(10, mean = 1.5, sd = 0.3),  # joyzepam, no.therapy
+  rnorm(10, mean = 1.6, sd = 0.3)   # joyzepam, CBT
+)
+
+# Combine into a data frame
+clin.trial <- data.frame(
+  drug = drug,
+  therapy = therapy,
+  mood.gain = mood.gain
+)
+
+# Preview the data
+head(clin.trial)
+```
+
+## Why Use ANOVA Instead of Multiple t-Tests?
+
+When comparing more than two group means, it's tempting to just run a
+bunch of t-tests — for example, comparing Group 1 vs Group 2, Group 1 vs
+Group 3, and so on. But this approach has a serious drawback:
+
+**Each t-test carries a risk of a Type I error (false positive). The
+more tests you run, the greater your overall chance of making at least
+one mistake.**
+
+Let’s look at an example:
+
+-    Imagine you're comparing 3 groups.
+
+-   To compare them using t-tests, you’d need 3 comparisons:
+
+    -    Group 1 vs Group 2
+
+    -    Group 1 vs Group 3
+
+    -    Group 2 vs Group 3
+
+Each test typically uses a significance level of 0.05, meaning there’s a
+5% chance of finding a significant result by chance — even if there's no
+real difference.
+
+**When you run 3 tests, the chance of at least one false positive is
+greater than 5%.**
+
+As you add more groups (and more tests), this problem gets worse — this
+is known as the **inflation of the familywise error rate**.
+
+### How ANOVA Solves the Problem
+
+**ANOVA (Analysis of Variance)** solves this by testing **all groups at
+once** using a single overall test:
+
+-    It compares **variance between group means** to **variance within
+    groups**
+
+-   It produces a single **F-test** to tell us whether *any* group means
+    are significantly different
+
+-   If the F-test is significant, we can follow up with **post-hoc
+    tests** to see *which* groups differ, while controlling for error
+
+## ANOVAs
+
+### Introduction to ANOVA
+
+In statistics, when we want to compare **more than two group means**, we
+use **Analysis of Variance (ANOVA)**. While a t-test can compare two
+groups, running multiple t-tests inflates the Type I error rate. ANOVA
+allows us to test all groups simultaneously while controlling for error.
+
+-   **ANOVA compares the variance *between groups* to the variance
+    *within groups*.**
+
+-   We use the **F-ratio** to evaluate whether observed group
+    differences are larger than we'd expect due to random chance.
+
+#### Hypotheses for a One-Way ANOVA:
+
+-    **Null hypothesis (H₀):** All group means are equal.\
+    μ1​=μ2​=μ3
+
+-   **Alternative hypothesis (H₁):** At least one group mean is
+    different.\
+    (Not all μs are equal, but doesn't specify which ones.)
+
+This sets the stage for using statistical modeling to determine whether
+group membership explains a meaningful portion of the variability in the
+outcome.
+
+### Descriptive Statistics and Visuals
+
+Before running ANOVA, it’s important to **explore the data**.
+
+***Descriptive Tools***
+
+-   xtabs(): Cross-tabulation to check how many observations are in each
+    group.
+
+-   aggregate(): Calculates group means (or other summaries like SD).
+
+-   plotmeans() from the gplots package: Plots means with confidence
+    intervals.
+
+```{r example-describe-ANOVA}
+# Check number of cases in each group
+xtabs(~drug, data = clin.trial)
+```
+
+```{r}
+# Calculate group means
+aggregate(mood.gain ~ drug, data = clin.trial, mean)
+```
+
+```{r}
+# Plot means with confidence intervals
+plotmeans(mood.gain ~ drug, data = clin.trial)
+```
+
+These steps help verify:
+
+-   **Balanced groups** (equal sample sizes)
+
+-   **Group-level trends** before inference
+
+### Model Calculations
+
+What's happening with ANOVA calculations? These are the components:
+
+-   **Sum of Squares Between (SSB):** Variability due to differences
+    between group means
+
+-   **Sum of Squares Within (SSW):** Residual/error variability
+
+-   **Mean Squares (MS):** SS divided by degrees of freedom
+
+-   **F-statistic:** Ratio of MS between to MS within
+
+```{r example-ANOVA-calculations}
+model <- aov(mood.gain ~ drug, data = clin.trial)
+summary(model)
+```
+
+This gives us:
+
+-   Sum of Squares (Between and Within)
+
+-   Mean Squares
+
+-   F-statistic and *p*-value
+
+### Post-Hoc Analysis
+
+If the overall ANOVA is significant, we **don't yet know which groups
+differ**. That's where post-hoc tests come in.
+
+**Only** if the ANOVA is significant would we follow up with comparisons
+between groups. Post-hoc comparison would be justified because the
+overall ANOVA only tells us that **some group means differ**—not which
+ones.
+
+-   Use posthocPairwiseT() from the lsr package.
+
+-   It runs **pairwise comparisons** between groups while adjusting for
+    multiple testing.
+
+This function performs multiple pairwise comparisons while adjusting for
+Type I error. It tells us *which* groups differ.
+
+### Assumption Checks
+
+Before reporting results, we **check assumptions** and **compute effect
+size**:
+
+***Effect Size:***
+
+-   etaSquared(model) reports **η²**, the proportion of variance in the
+    outcome explained by group membership.
+
+-   Interpreted like R² in regression (e.g., η² = 0.71 = 71% variance
+    explained).
+
+***Assumption Checks:***
+
+-   leveneTest() from the car package tests **homogeneity of variance**.
+
+-   shapiro.test() tests **normality of residuals** (assuming
+    independence).
+
+### Template Code
+
+```{r example-ANOVA-code, eval = FALSE}
+# Load necessary libraries
+library(lsr)       # for etaSquared, posthocPairwiseT
+library(gplots)    # for plotmeans
+library(car)       # for Levene's test
+
+# One-way ANOVA: comparing means of one outcome across one grouping variable
+
+# View number of cases per group
+xtabs(~ grouping_variable, data = your_data)
+
+# Get mean of outcome variable for each group
+aggregate(outcome_variable ~ grouping_variable, data = your_data, mean)
+
+# Get standard deviation of outcome variable for each group
+aggregate(outcome_variable ~ grouping_variable, data = your_data, sd)
+
+# Plot group means with 95% confidence intervals
+plotmeans(outcome_variable ~ grouping_variable, 
+          data = your_data,
+          xlab = "Group Name (e.g., Treatment Type)",
+          ylab = "Outcome Variable (e.g., Mood Gain)",
+          main = "Outcome by Group with 95% CI")
+
+# Run the one-way ANOVA
+model <- aov(outcome_variable ~ grouping_variable, data = your_data)
+
+# Summary of ANOVA table
+summary(model)
+
+# Calculate eta squared effect size
+etaSquared(model)
+
+# Post-hoc comparisons (pairwise t-tests)
+posthocPairwiseT(model)
+
+# Levene's test for equal variances
+leveneTest(outcome_variable ~ grouping_variable, data = your_data)
+
+# Shapiro-Wilk test for normality of residuals
+shapiro.test(residuals(model))
+```
+
+------------------------------------------------------------------------
+
+## Factorial ANOVA
+
+### Introduction to Factorial ANOVA
+
+**Factorial ANOVA** allows us to study:
+
+-   **Two or more categorical IVs (factors)**
+
+-   **Main effects** of each IV
+
+-   **Interaction effect** between IVs
+
+Example:
+
+-   drug (placebo, anxifree, joyzepam)
+
+-   therapy (no.therapy, CBT)
+
+The design is described as a **3×2 factorial ANOVA**, examining whether
+drug and therapy affect mood.gain, alone, or interactively.
+
+### Model Calculations
+
+You can include main effects and interactions like this:
+
+```{r example-Factoral-model}
+model2 <- aov(mood.gain ~ drug * therapy, data = clin.trial)
+summary(model2)
+```
+
+You can use either drug + therapy + drug:therapy or simply drug \*
+therapy in the formula.
+
+This shows:
+
+-   The **main effects** of drug and therapy appear separately.
+
+-   The **interaction term** shows whether the effect of one variable
+    depends on the level of the other.
+
+### Interaction Plots
+
+Plotting helps visually assess interaction effects:
+
+```{r example-Factoral-plot}
+library(sciplot)
+lineplot.CI(x.factor = clin.trial$drug,
+            group = clin.trial$therapy,
+            response = clin.trial$mood.gain)
+```
+
+-   If the lines are not parallel, that suggests an interaction between
+    the two variables.
+
+### Model Interpretation
+
+To extract model-predicted **group means and confidence intervals**:
+
+```{r example-Factoral-means}
+library(effects)
+eff <- effect("drug*therapy", model2)
+summary(eff)
+```
+
+-   These are **estimated marginal means**, accounting for all terms in
+    the model.
+
+-   Useful for **reporting group differences with precision**.
+
+effect() is useful especially when group sizes are unequal or when
+interactions exist.
+
+### Assumption Checks
+
+Same as one-way ANOVA, we need to test assumptions:
+
+```{r example-Factoral-assumption}
+library(car)
+leveneTest(mood.gain ~ drug * therapy, data = clin.trial)
+shapiro.test(residuals(model2))
+```
+
+**Ignoring assumptions** like homogeneity can inflate Type I errors.
+These tests confirm that the model’s assumptions are not violated.
+
+### Effect Sizes
+
+You can quantify how much each effect (main or interaction) contributes
+to outcome variability:
+
+```{r example-Factoral-effect-size}
+etaSquared(model2)
+```
+
+-   Outputs **η²** and **partial η²**.
+
+-   Partial η² is especially useful in **factorial designs**, where you
+    isolate each term’s effect *controlling for others*.
+
+This provides both **eta squared** and **partial eta squared**, which
+show the proportion of variance explained by each effect. Use this to
+determine if an effect is not only significant, but meaningful.
+
+### Template Code
+
+```{r example-Factorial-code, eval = FALSE}
+# Load libraries
+library(sciplot)   # for lineplot.CI
+library(effects)   # for estimated marginal means
+
+# Factorial ANOVA: comparing effects of two categorical variables and their interaction
+
+# View number of cases per combination of the two grouping variables
+xtabs(~ factor_A + factor_B, data = your_data)
+
+# Means for each combination of factor levels
+aggregate(outcome_variable ~ factor_A + factor_B, data = your_data, mean)
+
+# Run the factorial ANOVA
+factorial_model <- aov(outcome_variable ~ factor_A * factor_B, data = your_data)
+
+# Summary of model (includes main effects and interaction)
+summary(factorial_model)
+
+# Plot interaction with 95% CI error bars
+lineplot.CI(x.factor = your_data$factor_A,
+            group = your_data$factor_B,
+            response = your_data$outcome_variable,
+            xlab = "Factor A (e.g., Treatment Type)",
+            ylab = "Outcome Variable (e.g., Performance)",
+            main = "Interaction Plot")
+
+# Get eta squared effect sizes for all terms
+etaSquared(factorial_model)
+
+# Estimated marginal means and confidence intervals for each group
+effect_model <- effect("factor_A*factor_B", factorial_model)
+summary(effect_model)
+
+# Levene’s test for homogeneity of variance across all groups
+leveneTest(outcome_variable ~ factor_A * factor_B, data = your_data)
+
+# Normality check on residuals
+shapiro.test(residuals(factorial_model))
+```
