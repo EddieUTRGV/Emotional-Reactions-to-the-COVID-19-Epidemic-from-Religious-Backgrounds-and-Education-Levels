@@ -1,0 +1,633 @@
+---
+title: "Regression"
+output: learnr::tutorial
+runtime: shiny_prerendered
+tutorial:
+  id: correlation_tutorial
+  title: "Regression Using Your Own Data"
+  description: "Learn how to run a regression and check assumptions using R"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries-to-load, include=FALSE}
+library(learnr)
+library(ggplot2)
+library(lsr)
+
+```
+
+## Predicting Values with Regression
+
+### What's linear regression?
+
+Linear regression models the relationship between a **dependent variable
+(Y)** and **one or more independent variables (X)** using the equation
+of a straight line.
+
+For example, imagine you want to predict students' test scores (Y) based
+on the number of hours they study (X). A linear regression would model
+that relationship as a straight line.
+
+### Linear Regression Model
+
+**Equation**:
+
+Y = *b*~0~ + *b*~1~ \* X + ϵ
+
+Where:
+
+-   Y = outcome variable
+
+-   X = predictor variable
+
+-   b~0~ = intercept (Y when X = 0)
+
+-   b~1~ = slope (change in Y for a 1-unit change in X)
+
+-   ϵ (epsilon) = error term (residual, random noise)
+
+![](images/clipboard-86114230.png){width="448"}
+
+### Assumptions of Linear Regression
+
+-   **Linearity** – Relationship between X and Y is linear.
+-   **Independence** – Each observation provides new information (no
+    duplicates or time-based dependencies).
+-   **Homoscedasticity** – The variance of errors is the same across all
+    values of X.
+-   **Normality** – Residuals are normally distributed.
+
+```{r eval=FALSE, include=FALSE}
+plot(model)            # Multiple diagnostic plots
+car::vif(model)        # Variance Inflation Factor for multicollinearity
+shapiro.test(resid(model))  # Normality test
+```
+
+### How Do We Estimate the Line? (OLS)
+
+Linear regression uses **Ordinary Least Squares (OLS)** to find the line
+that best fits the data. It does this by minimizing the squared
+differences between actual and predicted values (residuals).
+
+Why squared differences?
+
+-   Emphasizes larger errors
+
+-   Keeps negatives from canceling out positives
+
+-   Ensures a unique solution
+
+Estimating the slope (b1\~) and intercept (b0\~):
+
+$b_{1}$ = sum( ($X_{i}$ - $\bar{x}$)\*($Y_{i}$ - $\bar{y}$) ) / sum(
+($X_{i}$ - $\bar{x}$)\^2 )
+
+$b_{0}$ = $\bar{y}$ - $b_{1}$ \* $\bar{x}$
+
+![](images/clipboard-929334378.png){width="378"}
+
+This gives you the equation of the line that minimizes prediction
+errors.
+
+![](images/clipboard-1192260734.png){width="454"}
+
+### Measuring Model Fit
+
+The model based on the data might not reflect reality. We need some way
+of testing how well the model fits the observed data.
+
+How?
+
+-   *F*
+
+-   *R*^2^
+
+#### Sums of Squares
+
+To understand how well the model explains the data, we break down the
+variance:
+
+-   **Total Sum of Squares (SS~T~)**: Total variation in Y. Measures the
+    total variability in Y. How far each observed value is from the
+    overall **mean**.
+
+    `SST = sum( (Y~i~ - Ybar)\^2 )`
+
+    ![](images/clipboard-2881076777.png){width="322"}
+
+-   **Residual Sum of Squares (SS~R~)**: Error not explained by the
+    model. Measures the leftover **error**. How far each observed value
+    is from its predicted value.
+
+    `SSR = sum( (Y~i~ - Yhat_i)\^2 )`
+
+    ![](images/clipboard-742263655.png){width="293"}
+
+-   **Model** **Sum of Squares (SS~M~)**: Variation explained by the
+    regression. Measures how much of the variability is explained by the
+    regression model. How far predicted values are from the mean).
+
+    `SSM = sum( (Yhat_i - Ybar)\^2 )`
+
+    ![](images/clipboard-1980858664.png){width="428"}
+
+-   **Relationship:**
+
+    `SST = SSM + SSR`
+
+    If the model results in better prediction than using the mean, then
+    we expect SS~M~ to be much greater than SS~R~.
+
+    ![](images/clipboard-3809706701.png){width="468"}
+
+For formulas above, where:
+
+-   `Yi`: The actual observed value of the outcome variable for the i-th
+    observation.
+
+-   `Ybar`: The mean (average) of all the observed Y values.
+
+-   `Yhat_i`: The predicted value of Y for the i-th observation,
+    calculated from the regression model.
+
+### Testing the Fit: Fit Check
+
+#### R-squared (*R*²)
+
+*R*² tells us what proportion of the variance in Y is explained by the
+model.
+
+*R*² = SS~M~ / SS~T~
+
+-   Ranges from 0 to 1
+
+-   Closer to 1 means better prediction
+
+Example: *R*² = 0.75 means 75% of the variability in Y is explained by
+X.
+
+#### *F*-Test
+
+The *F*-test asks: Does this model explain a significant amount of
+variance in Y?
+
+*F* = MS~M~ / MS~E~
+
+Where:
+
+-   MSM = SSM / *k*\
+    \# Mean square for model (*k* = number of predictors)
+
+-   MSE = SSR / (*n* - *k* - 1)\
+    \# Mean square error
+
+A larger F indicates that the model is better than using the mean alone
+to predict Y.
+
+#### Testing Predictors (*t*-Test)
+
+For each predictor (e.g., X), we test if its slope *b* differs
+significantly from 0.
+
+*t* = *b* / SE*b*
+
+Where:
+
+-   SE*b* = sqrt( MSE / sum( (Xi - Xbar)\^2 ) )
+
+This helps determine if the predictor contributes meaningfully to the
+model.
+
+### How well does the model fit the data?
+
+There are two ways to assess the accuracy of the model in the sample:
+
+-   Residual statistics: Standardized residuals
+
+-   Influential cases: Cook’s distance
+
+#### Standardized Residuals
+
+In an average sample, 95% of standardized residuals should lie between
++- 2. 99% of standardized residuals should lie between +- 2.5.
+
+Outliers: Any case for which the absolute value of the standardized
+residual is 3 or more, is likely to be an outlier.
+
+#### Cook’s Distance
+
+Cook's distance is a measure of the influence of a single case on the
+model as a whole.
+
+Weisberg (1982): Absolute values greater than 1 may be cause for
+concern.
+
+#### Confidence and Prediction Intervals
+
+When using linear regression to make predictions, it's important to
+understand not just what value is predicted, but also how confident we
+are in that prediction. Confidence and prediction intervals provide a
+range around the prediction, acknowledging uncertainty.
+
+.
+
+##### Confidence Interval for the Slope:
+
+This interval gives a range of plausible values for the slope
+coefficient (b). It tells us how precisely we have estimated the effect
+of X on Y.
+
+CI = *b* ± t_crit \* SE~*b*~
+
+Where:
+
+-   b: estimated slope
+
+-   SE~*b*~: standard error of the slope
+
+-   t_crit: t-value from the t-distribution based on degrees of freedom
+    and desired confidence level (e.g., 1.96 for 95%)
+
+Interpretation: We are, for example, 95% confident that the true slope
+lies within this interval.
+
+.
+
+##### Confidence Interval for the Mean Prediction (Yhat):
+
+This interval estimates the average value of Y at a particular value of
+X. It is useful for predicting the mean response of a group.
+
+SE_Yhat = s_e \* sqrt( 1/n + (Xh - Xbar)\^2 / sum( (Xi - Xbar)\^2 ) )
+
+CI = Yhat ± t_crit \* SE_Yhat
+
+Where:
+
+-   Xh: the specific value of X at which the prediction is made
+
+-   Xbar: mean of all X values
+
+-   s_e: standard error of the regression (root mean square error)
+
+-   n: number of observations
+
+Interpretation: We are 95% confident that the average Y value at Xh
+falls within this range.
+
+.
+
+##### Prediction Interval for a New Observation:
+
+A prediction interval is similar to a confidence interval, but it
+includes the additional uncertainty of predicting a single new
+observation (not the average of a group).
+
+SE_pred = s_e \* sqrt( 1 + 1/n + (Xh - Xbar)\^2 / sum( (Xi - Xbar)\^2 )
+)
+
+PI = Yhat ± t_crit \* SE_pred
+
+Prediction intervals are wider than confidence intervals because they
+include variability in both the estimated mean and the individual
+outcome.
+
+## Example
+
+### Step 1: Load your data
+
+-   The primary predictor is `advertising`.
+
+-   The outcome `sales` is a function of `advertising` plus random
+    noise.
+
+-   `airplay` and `image` are included as additional context but not
+    used in the simple regression.
+
+```{r}
+# Set seed for reproducibility
+set.seed(42)
+
+# Sample size
+n <- 50
+
+# Generate fake data
+advertising <- round(rnorm(n, mean = 100, sd = 30), 2)  # advertising budget in thousands
+airplay <- round(rnorm(n, mean = 50, sd = 15))          # radio plays (not used here)
+image <- round(rnorm(n, mean = 5, sd = 2), 2)           # band image score (not used here)
+
+# Generate outcome variable: sales (in thousands)
+# sales depend mostly on advertising
+sales <- round(50 + 0.85 * advertising + rnorm(n, mean = 0, sd = 20), 2)
+
+# Combine into a data frame
+albums <- data.frame(
+  advertising = advertising,
+  airplay = airplay,
+  image = image,
+  sales = sales
+)
+
+# View first few rows
+head(albums)
+```
+
+### Step 2: Explore your data
+
+Visualize the relationship.
+
+```{r}
+# Load ggplot2 (if not already loaded)
+library(ggplot2)
+
+# Scatterplot with a regression line
+ggplot(albums, aes(x = advertising, y = sales)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(title = "Advertising vs. Album Sales",
+       x = "Advertising Budget (thousands)",
+       y = "Album Sales (thousands)")
+```
+
+Check if variables have missing values.
+
+```{r}
+summary(albums)
+sum(is.na(albums))
+```
+
+Check for outliers.
+
+```{r}
+boxplot(albums$advertising, main = "Boxplot of Advertising")
+boxplot(albums$sales, main = "Boxplot of Sales")
+```
+
+
+### Step 3: Fit the Regression Model
+
+What to look for:
+
+-   **Intercept (b~0~)**: Predicted sales when advertising is zero (not
+    always meaningful).
+
+-   **Slope (b~1~)**: Change in sales per £1000 increase in advertising.
+
+-   ***R*****-squared**: Proportion of variance in sales explained by
+    advertising.
+
+-   ***p*****-value for b~1~**: Whether the slope is statistically
+    significantly different from 0.
+
+```{r}
+model <- lm(sales ~ advertising, data = albums)
+summary(model)
+```
+
+More assumptions:
+
+```{r}
+# Residuals > ±3
+which(abs(rstandard(model)) > 3)
+```
+
+```{r}
+# Compute Cook’s Distance
+cooks_d <- cooks.distance(model)
+
+# View top 5 most influential points
+head(sort(cooks_d, decreasing = TRUE), 5)
+
+# Plot Cook’s Distance
+plot(cooks_d, type = "h", main = "Cook's Distance", ylab = "Distance")
+abline(h = 4/length(cooks_d), col = "red", lty = 2)
+
+# Cook’s Distance > 1: Usually indicates a highly influential case (red flag)
+# Cook’s Distance > 4/n: A more lenient rule of thumb for smaller datasets
+```
+
+### Step 4: Check assumptions
+
+-   **Top Left**: Residuals vs Fitted → checks linearity and
+    homoscedasticity
+
+<!-- -->
+
+-   **Top Right**: Normal Q-Q → checks normality of residuals
+
+<!-- -->
+
+-   **Bottom Left**: Scale-Location → checks spread of residuals
+
+<!-- -->
+
+-   **Bottom Right**: Residuals vs Leverage → identifies influential
+    points
+
+```{r}
+# Residual diagnostic plots
+par(mfrow = c(2, 2))  # plot all at once
+plot(model)
+par(mfrow = c(1, 1)) # reset to single plot
+```
+
+```{r}
+# Normality test
+shapiro.test(residuals(model))
+# Should be p > .05 for normal residuals
+```
+
+### Step 5: Report Findings
+
+```{r}
+# Predict for a new value of advertising
+predict(model, newdata = data.frame(advertising = 120), interval = "confidence")
+# You can also use interval = "prediction" for a single case prediction (wider interval).
+```
+
+A simple linear regression was conducted to examine whether advertising
+spending predicts album sales. All assumptions for linear regression
+were checked and met, including linearity, homoscedasticity, normality
+of residuals, and lack of influential outliers.
+
+The model was statistically significant, *F*(1, 48) = 153.80, *p* \<
+.001, and explained approximately 76.2% of the variance in album sales
+(*R*² = .76). Advertising was a significant predictor of album sales,
+*b* = 0.91, *t*(48) = 12.40, *p* \< .001. This indicates that for every
+additional £1000 spent on advertising, album sales increased by
+approximately 910 units, on average.
+
+## Template
+
+```{r libraries, eval=FALSE}
+library(ggplot2)
+```
+
+```{r load-data, eval=FALSE}
+# Load your data
+```
+
+```{r visualize-data, eval=FALSE}
+# Visualize data
+ggplot(your_data, aes(x = predictor, y = outcome)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(title = "Predictor vs. Outcome",
+       x = "Your Predictor Label",
+       y = "Your Outcome Label")
+```
+
+```{r outliers, eval=FALSE}
+summary(your_data)
+sum(is.na(your_data))
+
+boxplot(your_data$predictor, main = "Boxplot of Predictor")
+boxplot(your_data$outcome, main = "Boxplot of Outcome")
+```
+
+```{r model, eval=FALSE}
+# Fit the model
+model <- lm(outcome ~ predictor, data = your_data)
+
+# View summary
+summary(model)
+```
+
+```{r assumptions, eval=FALSE}
+par(mfrow = c(2, 2))  # show all diagnostic plots
+plot(model)
+par(mfrow = c(1, 1))  # reset to default
+```
+
+```{r residuals-check, eval=FALSE}
+# Residuals > ±3
+which(abs(rstandard(model)) > 3)
+```
+
+```{r slope-value, eval=FALSE}
+# Extract the slope value directly
+coef(model)[["predictor"]]
+# or
+b <- summary(model)$coefficients["predictor", "Estimate"]
+b
+```
+
+A simple linear regression was conducted to examine whether
+`[your predictor]` predicts `[your outcome]`.\
+
+All assumptions for linear regression were checked and met, including
+linearity, homoscedasticity, normality of residuals, and absence of
+influential outliers. (If the data did not pass an assumption, state
+that.)\
+
+The model was statistically significant, *F*(1, 48) = 153.80, *p* \<
+.001, and explained approximately 76.2% of the variance in
+`[your outcome]` (*R²* = .76).\
+
+`[Predictor]` was a significant predictor, *b* = 0.91, *t*(48) = 12.40,
+*p* \< .001.\
+
+This indicates that for every one-unit increase in `[predictor]`,
+`[outcome]` increased by approximately 0.91 units, on average. (Report b
+value.)
+
+## BONUS: Multiple Linear Regression
+
+### Equation
+
+Y = b~0~ + b~1~X~1~ + b~2~X~2~ + … + b~n~X~n~​
+
+-   Models more complex relationships by adding predictors.
+-   b~1~ : The unique effect of X~1~ ​on Y, holding all other predictors
+    constant.
+
+### Assumptions of Linear Regression
+
+-   **No multicollinearity** – In multiple regression, predictors should
+    not be too highly correlated with each other.
+-   Plus all of the previous assumptions:
+    -   **Linearity** – Relationship between X and Y is linear.
+    -   **Independence** – Each observation provides new information (no
+        duplicates or time-based dependencies).
+    -   **Homoscedasticity** – The variance of errors is the same across
+        all values of X.
+    -   **Normality** – Residuals are normally distributed.
+
+### Building the Model
+
+#### Hierarchical entry
+
+-   Known predictors (based on past research) are entered into the
+    regression model first.
+
+-   New predictors are then entered in a separate step/block.
+
+-   Researcher makes the decisions.
+
+It is the best method:
+
+-   Based on theory testing.
+
+-   You can see the unique predictive influence of a new variable on the
+    outcome because known predictors are held constant in the model.
+
+Bad point:
+
+-   It relies on the researcher knowing what they’re doing!
+
+#### Forced Entry
+
+-   All variables are entered into the model simultaneously.
+
+-   The results obtained depend on the variables entered into the model.
+    (It is important, therefore, to have good theoretical reasons for
+    including a particular variable.)
+
+#### Stepwise entry
+
+-   Variables are entered into the model based on mathematical criteria.
+
+-   Computer selects variables in steps.
+
+Problems:
+
+-   Reliance on a mathematical criterion.
+
+-   Variable selection may depend upon only slight differences in the
+    semi-partial correlation.
+
+-   These slight numerical differences can lead to major theoretical
+    differences.
+
+-   Should be used only for exploration.
+
+### Adjusted R²: Corrects R² for number of predictors
+
+R2_adj = 1 - ( (1 - R2)\*(n - 1) / (n - k - 1) )
+
+### Comparing Models
+
+To see if a complex model is better than a simpler one:
+
+-   *F*-Test for Nested Models:
+
+*F* = [ (SSR_reduced - SSR_full) / (df_reduced - df_full) ] / [SSR_full
+/ df_full]
+
+-   AIC (Akaike Information Criterion):
+
+AIC = 2k - 2ln(L)
+
+Where:
+
+-   k = number of parameters in the model
+
+-   L = likelihood of the model
+
+Lower AIC = better model fit

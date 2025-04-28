@@ -1,0 +1,321 @@
+---
+title: "Correlation"
+output: learnr::tutorial
+runtime: shiny_prerendered
+tutorial:
+  id: correlation_tutorial
+  title: "Correlations Using Your Own Data"
+  description: "Learn how to run a correlations and check assumptions using R"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, include=FALSE}
+library(learnr)
+library(ggplot2)
+library(lsr)
+library(dplyr)
+```
+
+## Relationships Between Quantitative Variables
+
+### What's the Purpose of Correlation?
+
+Correlation helps understand how are **two** **quantitative** variables
+**related**. We need to see whether as one variable increases, the other
+increases, decreases or stays the same.
+
+The **variance** tells us by how much scores deviate from the mean for a
+single variable.
+
+![](images/clipboard-2289993637.png){width="235"}
+
+**Covariance** is similar – it tells is by how much scores on two
+variables differ from their respective means.
+
+If both values for a person are above or below the mean at the same
+time, they contribute **positively** to the covariance. If one is above
+the mean and the other is below, they contribute **negatively**. By
+multiplying each pair of deviations and averaging them, we get the
+**covariance** — a summary of how the two variables change together.
+
+![](images/clipboard-3997629548.png){width="254" height="51"}
+
+![](images/clipboard-182133768.png){width="471"}
+
+#### Problems with covariance
+
+-   It depends upon the units of measurement. (E.g. The covariance of
+    two variables measured in Miles might be 4.25, but if the same
+    scores are converted to km, the covariance is 11.)
+
+-   One solution: standardise it! Divide by the standard deviations of
+    both variables.
+
+-   The standardised version of covariance is known as the correlation
+    coefficient. It is relatively affected by units of measurement.
+
+#### Correlation Coefficient
+
+**Correlation** builds on this idea by taking covariance and dividing it
+by the standard deviations of both variables. This **standardization**
+produces a value between -1 and +1, making it easier to interpret and
+compare across different datasets.
+
+![](images/clipboard-2198627577.png){width="234"}
+
+![](images/clipboard-3761070102.png){width="179"}
+
+#### Partial and Semi-Partial Correlations
+
+-   **Partial correlation:** Measures the relationship between two
+    variables, adjusting for the effect that a third variable has on
+    them both. (i.e., Z’s effect on X and Y)
+
+-   **Semi-partial correlation:** A measure of the relationship between
+    two variables while adjusting for the effect that one or more
+    additional variables have on [one]{.underline} of those variables.
+    If we call our variables x and y, it gives us a measure of the
+    variance in y that x alone shares. (i.e., Z’s effect on X only)
+
+#### Coefficient of determination, *r*^2^
+
+By squaring the value of *r* you get the proportion of variance in one
+variable shared by the other (i.e., the proportion of variance in one
+variable that can be explained by the other). For example, if *r* = 0.8,
+then *r*^2^ = 0.64, so 64% of the variation in Y is explained by X.
+
+#### Process
+
+![](images/clipboard-3957072486.png){width="483"}
+
+## Visualizing Relationships
+
+### Scatterplots
+
+Each point represents one observation:
+
+-   **x-axis**: explanatory variable
+
+-   **y-axis**: response variable
+
+```{r scatter-data, include=FALSE}
+signdist <- data.frame(
+  Age = c(18, 20, 22, 23, 23, 25, 30, 32, 35, 36,
+          40, 42, 45, 48, 50, 52, 55, 58, 60, 62,
+          65, 67, 69, 70, 73, 75, 78, 80, 81, 82),
+  Distance = c(510, 590, 560, 510, 460, 490, 475, 410, 420, 405,
+               390, 380, 370, 360, 350, 345, 420, 400, 390, 385,
+               370, 360, 355, 350, 340, 335, 330, 325, 315, 310)
+)
+
+parenthood <- data.frame(
+  dan.sleep = c(7.59, 7.91, 5.14, 7.71, 6.68, 5.99, 8.19, 7.19, 7.4, 6.58),
+  baby.sleep = c(10.18, 11.66, 7.92, 9.61, 9.75, 5.04, 10.45, 8.27, 6.06, 7.09),
+  dan.grump = c(56, 60, 82, 55, 67, 72, 53, 60, 60, 71),
+  day = 1:10
+)
+
+effort <- data.frame(
+  hours = c(2, 76, 40, 6, 16, 28, 27, 59, 46, 68),
+  grade = c(13, 88, 75, 20, 25, 72, 65, 79, 86, 84) 
+)
+
+```
+
+```{r scatter-example}
+ggplot(data = signdist, aes(x = Age, y = Distance)) + 
+  geom_point(color = "purple") +
+  theme_bw() +
+  labs(x = "Drivers Age (years)", y = "Sign Legibility Distance (feet)") +
+  stat_smooth(method = lm)
+```
+
+### What to Look For
+
+-   **Direction**: Positive or Negative
+-   **Form**: Linear, Curvilinear, or Clusters
+-   **Strength**: How tightly points follow the trend
+-   **Outliers**: Points that deviate from the pattern
+
+### Quantifying Relationships: The Correlation Coefficient (*r*)
+
+-   *r* varies between -1 and +1 and may be conceptualized as an effect
+    size:
+
+    0 = no relationship
+
+    ±.1 = small effect
+
+    ±.3 = medium effect
+
+    ±.5 = large effect
+
+*Update the correlation value in the code below. Run the code to create
+a plot.*
+
+```{r correlation-figures, message=FALSE, warning=FALSE, exercise=TRUE}
+library(ggplot2)
+library(MASS)
+library(scales)
+
+# Set the correlation value here
+r <- 0.3
+
+
+# -----------------------------------
+
+# Generate data with specified correlation
+Sigma <- matrix(c(1, r, r, 1), ncol = 2)
+data <- MASS::mvrnorm(n = 100, mu = c(0, 0), Sigma = Sigma)
+df <- data.frame(
+  x = rescale(data[, 1], to = c(1, 10)),
+  y = rescale(data[, 2], to = c(1, 10))
+)
+
+# Create plot
+ggplot(df, aes(x = x, y = y)) +
+  geom_point(color = "orange", alpha = 0.6) +
+  geom_smooth(method = "lm", color = "darkblue", se = FALSE) +
+  xlim(1, 10) + ylim(1, 10) +
+  labs(
+    title = paste0("Correlation: r = ", r),
+    x = "Duration of performance (minutes)",
+    y = "Time after performance before leaving (mins)")
+
+```
+
+## Calculating Correlations in R
+
+### With `cor()`
+
+```{r basic-cor}
+cor(x = signdist$Age, y = signdist$Distance)
+```
+
+### With `corr.test()`
+
+```{r}
+cor.test(x = signdist$Age, y = signdist$Distance, method = "pearson")
+```
+
+```{r}
+library(psych)
+corr.test(x = signdist$Age, y = signdist$Distance)
+```
+
+### Correlation Matrixes
+
+```{r matrix-cor}
+round(cor(parenthood[, c("dan.sleep", "baby.sleep", "dan.grump")]), 2)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(psych)
+corr.test(parenthood[, c("dan.sleep", "baby.sleep", "dan.grump")])
+```
+
+```{r}
+library(Hmisc)
+
+rcorr(as.matrix(parenthood[, c("dan.sleep", "baby.sleep", "dan.grump")]), type = "pearson")
+```
+
+### Alternative Method that will automatically exclude Non-Numeric Variables
+
+Using `lsr` package:
+
+``` r
+library(lsr)
+correlate(your_data)
+```
+
+```{r}
+library(lsr)
+correlate(parenthood)
+```
+
+### Additional Visualizations: Correlation Matrix
+
+```{r}
+library(corrplot)
+
+cor_matrix <- cor(parenthood)
+
+corrplot(cor_matrix, 
+         method = "circle", 
+         type = "upper", 
+         tl.col = "black", 
+         diag = FALSE)
+```
+
+```{r}
+library(ggcorrplot)
+
+cor_matrix <- cor(parenthood)
+ggcorrplot(cor_matrix, 
+           lab = TRUE
+           )
+
+```
+
+## Nonparametric tests
+
+### Spearman's rho
+
+Pearson’s correlation on the ranked data.
+
+```{r spearman-example}
+cor(effort$hours, effort$grade, method = "spearman")
+cor(signdist$Age, signdist$Distance, method = "spearman")
+```
+
+```{r}
+library(psych)
+corr.test(effort$hours, effort$grade, method = "spearman")
+corr.test(signdist$Age, signdist$Distance, method = "spearman")
+```
+
+### Kendall's tau
+
+Kendall’s tau is often preferred in small samples because it has better
+statistical properties (more robust, smaller variance).
+
+```{r}
+cor(parenthood$dan.sleep, parenthood$dan.grump, method = "kendall")  
+cor(parenthood$baby.sleep, parenthood$dan.grump, method = "kendall") 
+```
+
+```{r}
+library(psych)
+corr.test(parenthood$dan.sleep, parenthood$dan.grump, method = "kendall")  
+corr.test(parenthood$baby.sleep, parenthood$dan.grump, method = "kendall") 
+```
+
+## Cautions and Best Practices
+
+### Always Plot Your Data
+
+-   Avoid relying solely on the correlation coefficient
+-   ***Anscombe’s Quartet*** **demonstrates why plotting matters:** Even
+    if data looks similar on paper (same means, variances,
+    correlations), you might be missing the full picture. Visualizing
+    the data reveals structure and anomalies that summary stats can’t.\
+    ![](images/clipboard-3480538263.png){width="392"}
+
+### Reminder
+
+-   **Correlation ≠ Causation:** Even strong correlations do *not* imply
+    one variable causes the other.
+
+-   **The third-variable problem:** In any correlation, causality
+    between two variables *cannot* be assumed because there may be other
+    measured or unmeasured variables affecting the results.\
+    ![](images/clipboard-2184851892.png){width="480"}
+
+    ![](images/clipboard-3813046885.png){width="475"}
