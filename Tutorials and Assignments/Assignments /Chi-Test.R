@@ -9,7 +9,7 @@ library(ggplot2)
 #sample for starwars.
 
 #Alternative Hypothesis- There is a proportion of difference in gender within
-#the starwars sample.
+#the starwars sample
 
 data("starwars")
 
