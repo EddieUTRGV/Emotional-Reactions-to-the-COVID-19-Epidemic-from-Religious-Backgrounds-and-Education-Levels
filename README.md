@@ -1,6 +1,6 @@
 # Emotional Reactions to the COVID-19 Epidemic from Religious Backgrounds
 
-Do Spiritual Practitioners have an association to the frequency of people who perceived the COVID-19 epidemic as a legitimate issue.
+Do spiritual practitioners have an association to the people who perceived the COVID-19 epidemic as a legitimate issue.
 
 Were these religious people more or less likely to adhere to global regulations like wearing masks or keeping the minimum distance?
 
