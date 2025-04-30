@@ -1,4 +1,4 @@
-# Emotional Reactions to the COVID-19 Epidemic from Religious Backgrounds and Education Levels
+# Emotional Reactions to the COVID-19 Epidemic from Religious Backgrounds
 
 Do Spiritual Practicioners have an association to the frequency of people who perceived the COVID-19 epidemic as a legitimate issue.
 
