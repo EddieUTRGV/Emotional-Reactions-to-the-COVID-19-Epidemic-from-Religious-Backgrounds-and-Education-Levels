@@ -164,7 +164,7 @@ ggplot(data=data.xls, aes(x = factor(ONLY_R, labels = c("Not Religious", "Religi
     geom_bar(position = "dodge") +
     geom_text(stat='count', aes(label=..count..), position=position_dodge(0.9), vjust=-0.5) +
     labs(title = "Does Religion Impact the Perceptions of COVID-19",
-         x = "Religious Beliefs",
+         x = "Spiritual Practicioners",
          y = "Count of People",
          fill = "COVID-19 View") +
     theme_minimal() +
@@ -211,7 +211,7 @@ ggplot(data.xls, aes(x = ONLY_R)) +
 
 ```{r}
 
-table(data.xls$ONLY_R)
+table(data.xls$CVD_EXAG)
 
 chisq.test(table(data.xls$CVD_EXAG))$expected
 
