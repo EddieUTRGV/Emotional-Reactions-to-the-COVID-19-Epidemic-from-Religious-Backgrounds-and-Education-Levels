@@ -17,6 +17,7 @@ library(knitr)
 library(dplyr)
 library(readr)
 library(readxl)
+library(ggplot2)
 ```
 
 ===My Data===
@@ -193,3 +194,30 @@ ggplot(data=data.xls, aes(x = factor(LVL_EDU, labels = c("College and Higher", "
 ```
 
 A common issue that's been witnessed among many is how a lack of education can lead people to be ignorant about certain theories, ideas or health issues. One of the most leading issues would be people who practice anti-vaxxing, the act of refusing to use a vaccine for medical problems. The cause of this is usually the lack of education to help a person understand why they should be taking these medical solutions. This is one of the biggest barriers in vaccine uptake. I wanted to see if the differences in education within the sample saw COVID-19 as an issue or not. Through my research and the data provided we can see that many, highly educated or not, did see the virus as an issue to take seriously.
+
+===Chi-Square Test===
+
+```{r}
+table(data.xls$ONLY_R)
+
+chisq.test(table(data.xls$ONLY_R))$expected
+
+chisq.test(table(data.xls$ONLY_R))
+
+ggplot(data.xls, aes(x = ONLY_R)) +
+  geom_bar() +
+  labs(title = "Observed Frequencies", x = "Category", y = "Count")
+```
+
+```{r}
+
+table(data.xls$ONLY_R)
+
+chisq.test(table(data.xls$CVD_EXAG))$expected
+
+chisq.test(table(data.xls$CVD_EXAG))
+
+ggplot(data.xls, aes(x = CVD_EXAG)) +
+  geom_bar() +
+  labs(title = "Observed Frequencies", x = "Category", y = "Count")
+```
