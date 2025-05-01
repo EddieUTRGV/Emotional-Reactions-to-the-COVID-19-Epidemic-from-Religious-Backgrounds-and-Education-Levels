@@ -1,5 +1,5 @@
 ---
-title: "Data Management"
+title: "Spiritual Practitioners and the Association to People who Perceived COVID-19 as a Real Issue."
 format: 
   pdf: 
     number-sections: true 
