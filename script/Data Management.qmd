@@ -198,26 +198,36 @@ A common issue that's been witnessed among many is how a lack of education can l
 ===Chi-Square Test===
 
 ```{r}
-table(data.xls$ONLY_R)
 
-chisq.test(table(data.xls$ONLY_R))$expected
 
-chisq.test(table(data.xls$ONLY_R))
+# Read your dataset
+data.xls <- read_excel(file_path)
 
-ggplot(data.xls, aes(x = ONLY_R)) +
-  geom_bar() +
-  labs(title = "Observed Frequencies", x = "Category", y = "Count")
+# Ensure variables are factors
+data.xls$`A5.3*` <- as.factor(data.xls$`A5.3*`)
+data.xls$A3.8 <- as.factor(data.xls$A3.8)
+
+# Create a contingency table
+contingency_table <- table(data.xls$`A5.3*`, data.xls$A3.8)
+
+# Perform chi-square test
+chi_test <- chisq.test(contingency_table)
+
+# Print the test results
+print(chi_test)
+
+# Convert the contingency table to a dataframe for plotting
+plot_data <- as.data.frame(contingency_table)
+colnames(plot_data) <- c("CVD_EXAG", "ONLY_R", "Count")
+
+# Plot with ggplot2
+ggplot(plot_data, aes(x = CVD_EXAG, y = Count, fill = ONLY_R)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Contingency Table of CVD_EXAG and ONLY_R",
+       x = "CVD_EXAG",
+       y = "Count",
+       fill = "ONLY_R") +
+  theme_minimal()
 ```
 
-```{r}
-
-table(data.xls$CVD_EXAG)
-
-chisq.test(table(data.xls$CVD_EXAG))$expected
-
-chisq.test(table(data.xls$CVD_EXAG))
-
-ggplot(data.xls, aes(x = CVD_EXAG)) +
-  geom_bar() +
-  labs(title = "Observed Frequencies", x = "Category", y = "Count")
-```
+The chi-square test result was 171.32 for X-Squared, 99 for df, and a p-value of 8.897e-06 shows that there is a significant association between the respondents spirituality and their perception of COVID-19 being exaggerated. The p-value is much smaller than the conventional alpha level of 0.05, so we reject the null hypothesis of independence. This implies that a persons spiritual views may alter how they view COVID-19 as a serious issue, although more analysis would need to be conducted in order to understand this relationship more
